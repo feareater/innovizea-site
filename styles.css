@@ -1,0 +1,190 @@
+/* Innovizea LLC — shared styles.
+   Palette lifted verbatim from the Card Shark apps (CardShark21/components/Theme.js)
+   so the site and the games read as one brand. */
+:root {
+  --felt-top: #12694c;
+  --felt-bot: #072b1f;
+  --gold: #F4C64D;
+  --gold-dim: #caa23a;
+  --text: #F1F5F3;
+  --dim: #98ADA4;
+  --accent: #4EA1FF;
+  --border: rgba(255, 255, 255, 0.12);
+  --panel: rgba(0, 0, 0, 0.24);
+  --max: 1080px;
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(180deg, var(--felt-top) 0%, var(--felt-bot) 68%) no-repeat;
+  background-color: var(--felt-bot);
+  color: var(--text);
+  font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.wrap { max-width: var(--max); margin: 0 auto; padding: 0 20px; }
+
+/* ---------- header ---------- */
+header {
+  padding: 26px 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.brand {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  color: var(--gold);
+  text-decoration: none;
+}
+nav a {
+  color: var(--dim);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  margin-left: 20px;
+}
+nav a:hover, nav a:focus-visible { color: var(--text); }
+
+/* ---------- hero ---------- */
+.hero { padding: 44px 0 30px; text-align: center; }
+.hero h1 {
+  margin: 0 0 14px;
+  font-size: clamp(30px, 6vw, 50px);
+  line-height: 1.12;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+}
+.hero h1 .accent { color: var(--gold); }
+.hero p {
+  margin: 0 auto;
+  max-width: 660px;
+  color: var(--dim);
+  font-size: clamp(16px, 2.3vw, 19px);
+}
+.badges {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 22px;
+}
+.badge {
+  border: 1px solid var(--border);
+  background: var(--panel);
+  border-radius: 999px;
+  padding: 7px 15px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--dim);
+}
+.badge strong { color: var(--gold); font-weight: 800; }
+
+/* ---------- game grid ---------- */
+h2.section {
+  font-size: 13px;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--dim);
+  font-weight: 800;
+  margin: 40px 0 16px;
+}
+.games {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 14px;
+  padding: 0;
+  margin: 0 0 20px;
+  list-style: none;
+}
+.game a {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--panel);
+  text-decoration: none;
+  color: inherit;
+  height: 100%;
+  transition: border-color .16s ease, transform .16s ease, background .16s ease;
+}
+.game a:hover, .game a:focus-visible {
+  border-color: var(--gold-dim);
+  background: rgba(0, 0, 0, 0.34);
+  transform: translateY(-2px);
+}
+.game img {
+  width: 62px;
+  height: 62px;
+  border-radius: 14px;
+  flex: 0 0 auto;
+  background: rgba(0,0,0,.3);
+}
+.game .meta { min-width: 0; }
+.game .name {
+  display: block;
+  font-weight: 800;
+  font-size: 15px;
+  margin-bottom: 3px;
+}
+.game .tag {
+  display: block;
+  color: var(--dim);
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+
+/* ---------- prose (privacy / support) ---------- */
+.prose { max-width: 760px; margin: 0 auto; padding: 8px 0 20px; }
+.prose h1 { font-size: clamp(26px, 5vw, 36px); margin: 24px 0 6px; font-weight: 900; }
+.prose h2 {
+  font-size: 19px;
+  margin: 32px 0 8px;
+  color: var(--gold);
+  font-weight: 800;
+}
+.prose p, .prose li { color: #DCE5E1; }
+.prose ul { padding-left: 22px; }
+.prose li { margin-bottom: 9px; }
+.prose a { color: var(--accent); }
+.prose .updated { color: var(--dim); font-size: 14px; margin-top: 0; }
+.prose strong { color: var(--text); }
+.callout {
+  border: 1px solid var(--border);
+  background: var(--panel);
+  border-radius: 14px;
+  padding: 16px 18px;
+  margin: 22px 0;
+}
+.callout p:first-child { margin-top: 0; }
+.callout p:last-child { margin-bottom: 0; }
+
+/* ---------- footer ---------- */
+footer {
+  margin-top: 54px;
+  padding: 26px 0 40px;
+  border-top: 1px solid var(--border);
+  color: var(--dim);
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+footer a { color: var(--dim); text-decoration: none; }
+footer a:hover { color: var(--text); text-decoration: underline; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+  .game a:hover { transform: none; }
+}
