@@ -1,0 +1,5 @@
+* text=auto
+# app-ads.txt is parsed by Google's crawler — pin LF so a Windows checkout can't
+# introduce CRLF into the deployed artifact.
+app-ads.txt text eol=lf
+*.webp binary
