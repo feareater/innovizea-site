@@ -11,7 +11,7 @@ consulting.html     Salesforce consulting practice
 games.html          the 13-game Card Shark hub, links to each Play listing
 thunk.html          Thunk: Shape Fit Puzzle
 choptick.html       pointer to choptick.app (Choptick's real home)
-race/index.html     Rocket Scooter Race — the game itself, playable at /race/
+race/index.html     Race to the Moon — the game itself, playable at /race/
 policies.html       privacy hub — one card per product, links to each policy
 privacy.html        ⚠ Card Shark privacy policy  — REGISTERED URL, DO NOT MOVE
 thunk-privacy.html  Thunk privacy policy (Thunk stores different things)
@@ -23,16 +23,21 @@ assets/icons/       15 app icons, 192px WebP
 CNAME               innovizea.com (GitHub Pages apex)
 ```
 
-## Rocket Scooter Race is a vendored copy
+## Race to the Moon is a vendored copy
 
 `race/index.html` is copied from **github.com/feareater/RocketScooterRace** (private, no Pages
 of its own). It is one self-contained file — no external requests, no build, `localStorage`
 only — which is why it can simply be dropped in and played at `/race/`.
 
-**That repo is the source of truth.** To update: `cp` the file in, then re-apply the two
-deltas, both marked with comments in the file — the `<title>` + favicon block in `<head>`,
-and the `← innovizea.com` back link under the sidebar subtitle. The page is full-screen with
-`overflow: hidden`, so without that link a visitor has no way back.
+⚠️ **The product was renamed to "Race to the Moon" on 2026-08-04** (Jeff's call). The repo,
+the folder and the `/race/` path still carry the old name; only the user-facing name changed.
+The name is literal on the default theme — Cosmos sets the finish to `kind: 'pixelMoon'`, so
+the moon really is the finish line.
+
+**That repo is the source of truth.** To update: `cp` the file in, then re-apply the three
+deltas, all marked with comments in the file — the `<title>` + favicon block in `<head>`, the
+`← innovizea.com` back link under the sidebar subtitle, and the renamed `<h1>`/subtitle. The
+page is full-screen with `overflow: hidden`, so without that link a visitor has no way back.
 
 Note the site repo is **public** and RocketScooterRace is private. Hosting the game here
 publishes its source — which is inherent to any client-side browser game (view-source shows
@@ -131,7 +136,7 @@ names and packages is each game's `app.json` under `CardShark-Suite/`.
 **Adding a product** — add a `<li>` to the `.products` list in `index.html` with a
 `p-<name>` class, then define that class's `--p-accent` / `--p-wash` near the bottom of
 `styles.css`. Nothing else needs to know it exists. Add `wide` to span the grid (used for
-Rocket Scooter Race, which is a browser toy rather than a store app). A product with no app
+Race to the Moon, which is a browser toy rather than a store app). A product with no app
 icon uses `<span class="glyph">` with an emoji instead of an `<img>`, so its card header
 still lines up with the others.
 
