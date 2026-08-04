@@ -1,18 +1,37 @@
 # innovizea.com
 
-Static site for **Innovizea LLC** — the landing page for the 13-game Card Shark family, the
-shared privacy policy, support/FAQ, and `app-ads.txt`.
+Static site for **Innovizea LLC** — the company site (Salesforce consulting + our own
+products), the app privacy policies, support/FAQ, and `app-ads.txt`.
 
 No build step, no dependencies. Plain HTML/CSS; deploy the repo root as-is.
 
 ```
-index.html        13-game hub, links to each Play listing
-privacy.html      shared privacy policy for ALL Innovizea apps
-support.html      support + FAQ (the Play "support" destination)
-app-ads.txt       AdMob authorized-sellers file  <-- see below, this one matters
-styles.css        brand palette lifted from CardShark21/components/Theme.js
-assets/icons/     13 app icons, 192px WebP (~172 KB total)
+index.html          company home — consulting first, products below
+consulting.html     Salesforce consulting practice
+games.html          the 13-game Card Shark hub, links to each Play listing
+thunk.html          Thunk: Shape Fit Puzzle
+choptick.html       pointer to choptick.app (Choptick's real home)
+privacy.html        ⚠ Card Shark privacy policy  — REGISTERED URL, DO NOT MOVE
+thunk-privacy.html  Thunk privacy policy (Thunk stores different things)
+support.html        ⚠ support + FAQ             — REGISTERED URL, DO NOT MOVE
+app-ads.txt         ⚠ AdMob authorized sellers  — REGISTERED URL, DO NOT MOVE
+styles.css          neutral company shell + per-product accent tokens
+assets/icons/       15 app icons, 192px WebP
+CNAME               innovizea.com (GitHub Pages apex)
 ```
+
+## The three URLs that must never move
+
+`app-ads.txt`, `privacy.html` and `support.html` are registered in Google Play and AdMob
+against live listings. **GitHub Pages has no server-side redirects**, so moving any of them
+silently breaks the thing it was created to fix.
+
+- `privacy.html` is the privacy-policy URL on **all 13 Card Shark listings**. That field is
+  *not* in the Play Publishing API (App content → Privacy policy) — a moved URL means
+  thirteen manual edits in the console.
+- `app-ads.txt` moving restarts AdMob's 24-hour detection window.
+
+Change the *contents* freely. Do not change the *paths*.
 
 ## Why app-ads.txt exists here
 
@@ -27,42 +46,70 @@ listing `contactWebsite` set to `https://innovizea.com`.
 
 **One file covers all 13 apps** — they share the AdMob publisher ID `pub-5852780413067836`.
 
-Do not reformat it. One record per line, no BOM, served as `text/plain`.
+Do not reformat it. One record per line, no BOM, LF (pinned in `.gitattributes`), served as
+`text/plain`.
 
-## Deploy — Cloudflare Pages
+Each AdMob app must also be **linked to its Play listing** (AdMob → app → app settings). Without
+that link AdMob has no listing to read the developer website from, and verification can never
+succeed no matter how correct the file is.
 
-1. Cloudflare dashboard → **Workers & Pages** → **Create** → **Pages** → **Connect to Git**
-2. Pick this repo. Build settings:
-   - Framework preset: **None**
-   - Build command: *(leave empty)*
-   - Build output directory: `/`
-3. Deploy. You get `<project>.pages.dev` — check it renders before touching DNS.
-4. **Custom domains** → add `innovizea.com` and `www.innovizea.com`.
-5. Cloudflare gives you the DNS records. At **GoDaddy** → Domain → DNS, replace the existing
-   A/CNAME records for the root and `www` with those. This retires the GoDaddy Website Builder
-   site — that's intended; this repo replaces it.
-6. Wait for DNS to propagate, then verify:
+## Hosting: GitHub Pages — and NOT Cloudflare, deliberately
 
-```bash
-curl -sS https://innovizea.com/app-ads.txt        # must return the single google.com line
-curl -sSI https://innovizea.com/app-ads.txt       # content-type should be text/plain
+Served by **GitHub Pages** from `main` at the repo root. The repo is public because free-tier
+Pages requires it.
+
+> ⚠️ **Do not migrate this to Cloudflare Pages.** It was evaluated and rejected. Cloudflare
+> needs the domain on its own nameservers to serve an apex domain, and **innovizea.com runs
+> Microsoft 365 mail** (`innovizea-com.mail.protection.outlook.com`). Moving nameservers means
+> migrating MX/SPF/DKIM/autodiscover and risking business email — to save nothing. GitHub Pages
+> publishes an apex through four fixed A records and never touches mail.
+
+DNS at GoDaddy:
+
+```
+@    A      185.199.108.153 / .109.153 / .110.153 / .111.153
+www  CNAME  feareater.github.io
 ```
 
-## After the domain is live
+`CNAME` is committed in the repo; **Enforce HTTPS** is on.
 
-1. Point every Play listing at the new domain (all 13; the API script handles it):
-   `contactWebsite` → `https://innovizea.com`
-2. In AdMob → app → **app-ads.txt** → **Check for updates**. A successful crawl usually lands
-   within a few hours.
-3. Optionally move each app's **privacy policy URL** in Play from the Google Site to
-   `https://innovizea.com/privacy.html`, and set the support URL to `support.html`.
+## Verifying from Jeff's PC — two false alarms that will recur
+
+Both are local, not the site:
+
+1. **Norton MITMs TLS.** Local `curl` reads `CN=Norton Web/Mail Shield Root` instead of the real
+   certificate and fails revocation. Use `curl -k`, or verify from outside the LAN.
+2. **The Windows DNS client cache** can keep resolving the old GoDaddy IP long after `nslookup`
+   shows the new one (`nslookup` queries the resolver directly and bypasses that cache). The
+   giveaway is a GoDaddy *"Page Not Found"* on a path while `/` still returns 200. Fix with
+   `ipconfig /flushdns`, plus `chrome://net-internals/#dns` → Clear host cache.
+
+Definitive test that skips DNS entirely:
+
+```bash
+curl -k --resolve innovizea.com:443:185.199.108.153 https://innovizea.com/app-ads.txt
+```
 
 ## Editing
 
-The game list is hand-written in `index.html` (13 `<li class="game">` entries). Adding a game
-means: drop a 192px WebP into `assets/icons/`, copy an existing `<li>`, update the name, tag and
-package id. Source of truth for names/packages is each game's `app.json` under
-`CardShark-Suite/`.
+**Adding a Card Shark game** — drop a 192px WebP into `assets/icons/`, copy an existing
+`<li class="game">` in `games.html`, update the name, tag and package id. Source of truth for
+names and packages is each game's `app.json` under `CardShark-Suite/`.
 
-The privacy policy text mirrors `CardShark-Suite/INNOVIZEA_PRIVACY_POLICY.md` — if you change one,
-change the other, since that markdown is what the app stores reference.
+**Adding a product** — add a `<li>` to the `.products` list in `index.html` with a
+`p-<name>` class, then define that class's `--p-accent` / `--p-wash` near the bottom of
+`styles.css`. Nothing else needs to know it exists.
+
+**Icons** are 192px WebP. App icons ship at 512–1024px and are far too heavy to use raw —
+downscale them. There is no `sharp` or ImageMagick on this machine; the working recipe is
+headless Chrome via `puppeteer-core` (borrow `Sequence Puzzle/tools/browser.mjs`, which uses
+`pipe: true` because TCP to the devtools port is blocked here) and `canvas.toDataURL('image/webp')`.
+
+**A new app needs its own privacy page.** Do not extend `privacy.html` to cover it. That
+document says the apps are for a general adult audience and that we store no personal data on
+our own servers — both false for Thunk, which is rated E for Everyone and writes a display name
+to Firebase. It used to claim it covered "all" Innovizea apps "and future titles"; that scope was
+narrowed on 2026-08-04.
+
+The Card Shark policy text mirrors `CardShark-Suite/INNOVIZEA_PRIVACY_POLICY.md` — if you change
+one, change the other, since that markdown is what the app stores reference.
