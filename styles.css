@@ -31,6 +31,9 @@
   --ck-wash: linear-gradient(135deg, #2b3138, #1a1d22);
   --sf-accent: #4EA1FF;
   --sf-wash: linear-gradient(135deg, #16324f, #0d1c2e);
+  /* Rocket Scooter Race — its own cosmic palette, from race/index.html's :root. */
+  --rs-accent: #FFCC33;
+  --rs-wash: linear-gradient(135deg, #1a0b3a, #06061a);
 }
 
 * { box-sizing: border-box; }
@@ -253,6 +256,15 @@ h2.section .note {
 .p-thunk     { --p-accent: var(--tk-accent); --p-wash: var(--tk-wash); }
 .p-choptick  { --p-accent: var(--ck-accent); --p-wash: var(--ck-wash); }
 .p-salesforce{ --p-accent: var(--sf-accent); --p-wash: var(--sf-wash); }
+.p-race      { --p-accent: var(--rs-accent); --p-wash: var(--rs-wash); }
+
+/* Rocket Scooter Race is a browser toy, not a store app — it spans the grid so the
+   difference is visible before you read the card. Also rescues the layout: five cards
+   in two columns would otherwise leave an orphan.
+   The span must sit on the <li> — that is the grid item; the .product anchor inside it
+   is not, so grid-column there does nothing. */
+.products > li.wide { grid-column: 1 / -1; }
+.product.wide .desc { max-width: 68ch; }
 
 /* ---------- service list (consulting) ---------- */
 .services {

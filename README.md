@@ -11,14 +11,46 @@ consulting.html     Salesforce consulting practice
 games.html          the 13-game Card Shark hub, links to each Play listing
 thunk.html          Thunk: Shape Fit Puzzle
 choptick.html       pointer to choptick.app (Choptick's real home)
+race/index.html     Rocket Scooter Race — the game itself, playable at /race/
+policies.html       privacy hub — one card per product, links to each policy
 privacy.html        ⚠ Card Shark privacy policy  — REGISTERED URL, DO NOT MOVE
 thunk-privacy.html  Thunk privacy policy (Thunk stores different things)
 support.html        ⚠ support + FAQ             — REGISTERED URL, DO NOT MOVE
 app-ads.txt         ⚠ AdMob authorized sellers  — REGISTERED URL, DO NOT MOVE
 styles.css          neutral company shell + per-product accent tokens
+assets/favicon.svg  the site mark; PNG/ICO renditions beside it + /favicon.ico
 assets/icons/       15 app icons, 192px WebP
 CNAME               innovizea.com (GitHub Pages apex)
 ```
+
+## Rocket Scooter Race is a vendored copy
+
+`race/index.html` is copied from **github.com/feareater/RocketScooterRace** (private, no Pages
+of its own). It is one self-contained file — no external requests, no build, `localStorage`
+only — which is why it can simply be dropped in and played at `/race/`.
+
+**That repo is the source of truth.** To update: `cp` the file in, then re-apply the two
+deltas, both marked with comments in the file — the `<title>` + favicon block in `<head>`,
+and the `← innovizea.com` back link under the sidebar subtitle. The page is full-screen with
+`overflow: hidden`, so without that link a visitor has no way back.
+
+Note the site repo is **public** and RocketScooterRace is private. Hosting the game here
+publishes its source — which is inherent to any client-side browser game (view-source shows
+it to every player regardless), not a consequence of this arrangement.
+
+## The site icon
+
+`assets/favicon.svg` is the master: a slab "I" and the accent dot, the smallest piece of the
+header wordmark that still reads at 16px. Drawn as `<rect>`/`<circle>`, never `<text>` — a
+favicon cannot assume a font is installed. Every page links the SVG, `/favicon.ico` and an
+apple-touch PNG.
+
+Regenerate the raster sizes from the SVG with the headless-Chrome recipe under **Editing**
+below; the `.ico` is a hand-built single-image container (6-byte ICONDIR + 16-byte entry +
+PNG payload), which every current browser accepts.
+
+⚠️ `--` is illegal inside an XML comment, so a comment mentioning CSS custom properties by
+name silently makes the SVG undecodable. That cost a debugging cycle here.
 
 ## The three URLs that must never move
 
@@ -98,7 +130,10 @@ names and packages is each game's `app.json` under `CardShark-Suite/`.
 
 **Adding a product** — add a `<li>` to the `.products` list in `index.html` with a
 `p-<name>` class, then define that class's `--p-accent` / `--p-wash` near the bottom of
-`styles.css`. Nothing else needs to know it exists.
+`styles.css`. Nothing else needs to know it exists. Add `wide` to span the grid (used for
+Rocket Scooter Race, which is a browser toy rather than a store app). A product with no app
+icon uses `<span class="glyph">` with an emoji instead of an `<img>`, so its card header
+still lines up with the others.
 
 **Icons** are 192px WebP. App icons ship at 512–1024px and are far too heavy to use raw —
 downscale them. There is no `sharp` or ImageMagick on this machine; the working recipe is

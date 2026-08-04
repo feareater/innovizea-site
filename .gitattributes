@@ -3,3 +3,5 @@
 # introduce CRLF into the deployed artifact.
 app-ads.txt text eol=lf
 *.webp binary
+*.png binary
+*.ico binary

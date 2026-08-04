@@ -1,0 +1,2185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Rocket Scooter Race — Innovizea</title>
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<style>
+  :root {
+    --bg-top: #06061a;
+    --bg-mid: #0d0b34;
+    --bg-bot: #1a0b3a;
+    --accent: #ffcc33;
+    --danger: #ff4d6d;
+    --good: #34e89e;
+    --slow: #9d4edd;
+    --panel: rgba(10, 10, 30, 0.78);
+    --border: rgba(255, 255, 255, 0.12);
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    color: #eaeaff;
+    overflow: hidden;
+    background: linear-gradient(to bottom, var(--bg-top) 0%, var(--bg-mid) 60%, var(--bg-bot) 100%);
+  }
+
+  .stars, .stars2, .stars3 {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .stars  { background-image: radial-gradient(1px 1px at 20% 30%, #fff, transparent),
+                              radial-gradient(1px 1px at 70% 80%, #fff, transparent),
+                              radial-gradient(1px 1px at 40% 60%, #fff, transparent),
+                              radial-gradient(2px 2px at 85% 15%, #fff, transparent),
+                              radial-gradient(1px 1px at 10% 90%, #fff, transparent),
+                              radial-gradient(1px 1px at 55% 25%, #fff, transparent);
+            background-size: 800px 800px;
+            animation: drift 120s linear infinite; }
+  .stars2 { background-image: radial-gradient(1px 1px at 30% 50%, #c0c0ff, transparent),
+                              radial-gradient(2px 2px at 65% 40%, #c0c0ff, transparent),
+                              radial-gradient(1px 1px at 90% 70%, #c0c0ff, transparent);
+            background-size: 600px 600px;
+            animation: drift 80s linear infinite; }
+  .stars3 { background-image: radial-gradient(1px 1px at 15% 20%, #fffacd, transparent),
+                              radial-gradient(1px 1px at 80% 50%, #fffacd, transparent);
+            background-size: 400px 400px;
+            animation: drift 50s linear infinite; }
+  @keyframes drift { from { transform: translateX(0); } to { transform: translateX(-800px); } }
+
+  .app {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    height: 100vh;
+  }
+
+  .sidebar {
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    padding: 18px;
+    overflow-y: auto;
+    backdrop-filter: blur(6px);
+  }
+
+  .sidebar h1 {
+    margin: 0 0 4px 0;
+    font-size: 20px;
+    color: var(--accent);
+    letter-spacing: 0.5px;
+  }
+  .sidebar .subtitle {
+    margin: 0 0 16px 0;
+    font-size: 12px;
+    color: #aaa;
+  }
+
+  .input-row { display: flex; gap: 6px; margin-bottom: 8px; }
+  .input-row input {
+    flex: 1;
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 14px;
+    outline: none;
+  }
+  .input-row input:focus { border-color: var(--accent); }
+  .input-row button {
+    background: var(--accent);
+    color: #111;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .input-row button:hover { filter: brightness(1.1); }
+
+  .bulk { margin-bottom: 12px; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  .bulk summary { cursor: pointer; padding: 8px 10px; background: rgba(255,255,255,0.05); font-size: 13px; color: var(--accent); user-select: none; }
+  .bulk[open] summary { border-bottom: 1px solid var(--border); }
+  .bulk-body { padding: 8px; }
+  .bulk textarea {
+    width: 100%; height: 110px;
+    background: rgba(255,255,255,0.08); color: #fff;
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: 6px 8px;
+    font-size: 12px; font-family: 'Consolas', monospace;
+    resize: vertical; outline: none;
+  }
+  .bulk textarea:focus { border-color: var(--accent); }
+  .bulk-controls { display: flex; gap: 6px; margin-top: 6px; align-items: center; }
+  .bulk-controls button {
+    background: var(--accent); color: #111; border: none;
+    border-radius: 6px; padding: 6px 10px;
+    font-size: 12px; font-weight: 600; cursor: pointer;
+  }
+  .bulk-controls button.secondary { background: rgba(255,255,255,0.1); color: #fff; }
+  .bulk-controls .count { margin-left: auto; font-size: 11px; color: #aaa; }
+  .racer-count-badge {
+    display: inline-block; background: rgba(255, 204, 51, 0.18); color: var(--accent);
+    border-radius: 10px; padding: 1px 8px; font-size: 11px;
+    margin-left: 6px; vertical-align: middle;
+  }
+
+  .racers-list { list-style: none; padding: 0; margin: 0 0 16px 0; max-height: 30vh; overflow-y: auto; }
+  .racers-list li {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 8px; border-radius: 6px; margin-bottom: 4px;
+    background: rgba(255,255,255,0.04); font-size: 14px;
+  }
+  .racers-list .dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+  .racers-list .name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .racers-list .remove {
+    background: transparent; border: none; color: #ff7a90;
+    cursor: pointer; font-size: 16px; padding: 0 4px;
+  }
+  .empty-hint { color: #888; font-size: 12px; font-style: italic; text-align: center; padding: 8px; }
+
+  .options { border-top: 1px solid var(--border); padding-top: 12px; margin-bottom: 14px; }
+  .options h3 { margin: 0 0 8px; font-size: 13px; color: var(--accent); }
+  .opt-row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 8px; font-size: 13px;
+  }
+  .opt-row label { color: #ddd; }
+  .opt-row input[type=number] {
+    width: 60px;
+    background: rgba(255,255,255,0.08); color: #fff;
+    border: 1px solid var(--border); border-radius: 4px;
+    padding: 4px 6px; font-size: 12px; outline: none;
+  }
+  .opt-row input[type=range] { flex: 1; margin-left: 10px; max-width: 130px; }
+  .opt-row .value { color: var(--accent); font-size: 12px; min-width: 32px; text-align: right; }
+  .opt-row select {
+    background: rgba(255,255,255,0.08); color: #fff;
+    border: 1px solid var(--border); border-radius: 4px;
+    padding: 4px 6px; font-size: 12px; outline: none;
+    cursor: pointer; min-width: 130px;
+  }
+  /* Custom theme editor (per-slot emoji + file inputs) */
+  .custom-editor {
+    display: none;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px;
+    margin: 4px 0 10px;
+  }
+  .custom-editor.show { display: block; }
+  .custom-editor h4 {
+    margin: 4px 0 8px; font-size: 11px; letter-spacing: 1px;
+    color: #888; text-transform: uppercase;
+  }
+  .custom-row {
+    display: grid;
+    grid-template-columns: 70px 46px auto 1fr;
+    gap: 6px; margin-bottom: 6px;
+    align-items: center; font-size: 12px;
+  }
+  .custom-row .slot-label { color: #ccc; }
+  .custom-row .slot-hint  { color: #777; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .custom-row .emoji-in {
+    width: 46px; padding: 3px; text-align: center;
+    background: rgba(255,255,255,0.08); border: 1px solid var(--border);
+    color: #fff; border-radius: 4px; font-size: 14px; outline: none;
+  }
+  .custom-row .file-in {
+    font-size: 10px; color: #888; width: 100%;
+  }
+  .custom-row .file-in::-webkit-file-upload-button {
+    background: rgba(255,255,255,0.1); color: #fff;
+    border: 1px solid var(--border); border-radius: 3px;
+    padding: 2px 6px; font-size: 10px; cursor: pointer;
+    margin-right: 4px;
+  }
+  .custom-row .preview-thumb {
+    width: 22px; height: 22px;
+    background-size: contain; background-repeat: no-repeat; background-position: center;
+    border-radius: 3px;
+  }
+  .custom-editor .clear-btn {
+    background: transparent; color: #ff7a90; border: none;
+    cursor: pointer; font-size: 10px; padding: 2px 4px;
+  }
+  .toggle {
+    position: relative; display: inline-block; width: 40px; height: 22px;
+  }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider {
+    position: absolute; cursor: pointer; inset: 0;
+    background: rgba(255,255,255,0.15); border-radius: 22px;
+    transition: 0.2s;
+  }
+  .toggle-slider:before {
+    position: absolute; content: '';
+    height: 16px; width: 16px; left: 3px; top: 3px;
+    background: #fff; border-radius: 50%; transition: 0.2s;
+  }
+  .toggle input:checked + .toggle-slider { background: var(--accent); }
+  .toggle input:checked + .toggle-slider:before { transform: translateX(18px); }
+
+  .actions { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+  .actions button {
+    border: none; border-radius: 6px; padding: 12px;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  .btn-start { background: var(--good); color: #062; }
+  .btn-start:disabled { background: #555; color: #888; cursor: not-allowed; }
+  .btn-reset { background: rgba(255,255,255,0.1); color: #fff; }
+
+  .legend { border-top: 1px solid var(--border); padding-top: 12px; font-size: 12px; color: #ccc; }
+  .legend h3 { margin: 0 0 8px; font-size: 13px; color: var(--accent); }
+  .legend-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .legend-row .icon { font-size: 18px; width: 22px; text-align: center; }
+
+  /* Race track */
+  .track { position: relative; overflow: hidden; }
+
+  .moon {
+    position: absolute; right: 18px; top: 50%;
+    transform: translateY(-50%);
+    width: 132px; height: 132px;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    filter: drop-shadow(0 0 18px rgba(255, 250, 205, 0.45));
+    z-index: 2;
+  }
+
+  .finish-line {
+    position: absolute; right: 150px;
+    top: 0; bottom: 0; width: 8px;
+    background:
+      repeating-linear-gradient(0deg,
+        #fff 0 16px, #0a0a14 16px 32px);
+    box-shadow: 1px 0 0 #0a0a14, -1px 0 0 #0a0a14;
+    opacity: 0.85; z-index: 1;
+    image-rendering: pixelated;
+  }
+
+  #race-canvas {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .obstacle {
+    position: absolute; font-size: 26px; z-index: 3;
+    pointer-events: none; line-height: 1;
+  }
+  .obstacle.asteroid { animation: spinAsteroid 1.5s linear infinite; }
+  @keyframes spinAsteroid { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+  .obstacle.blackhole { font-size: 34px; animation: pulseHole 1.2s ease-in-out infinite; }
+  @keyframes pulseHole {
+    0%,100% { transform: scale(1); filter: drop-shadow(0 0 6px var(--slow)); }
+    50%     { transform: scale(1.15); filter: drop-shadow(0 0 14px var(--slow)); }
+  }
+  .obstacle.ufo { font-size: 30px; }
+  .obstacle.fuel { font-size: 22px; animation: bobFuel 0.8s ease-in-out infinite alternate; }
+  @keyframes bobFuel { from { transform: translateY(0); } to { transform: translateY(-4px); } }
+  /* Image-backed obstacles (custom theme uploads) */
+  .obstacle.img-obstacle {
+    width: 36px; height: 36px; font-size: 0;
+    background-size: contain; background-repeat: no-repeat; background-position: center;
+  }
+
+  .banner {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(0.5);
+    background: rgba(0,0,0,0.85);
+    border: 2px solid var(--accent);
+    color: #fff; padding: 22px 36px; border-radius: 14px;
+    text-align: center; z-index: 10;
+    opacity: 0;
+    transition: opacity 0.35s ease, transform 0.45s cubic-bezier(0.34,1.56,0.64,1);
+    pointer-events: none;
+    max-width: 80%;
+  }
+  .banner.show { opacity: 1; transform: translate(-50%, -50%) scale(1); pointer-events: auto; }
+  .banner .title { font-size: 24px; color: var(--accent); margin-bottom: 6px; }
+  .banner .winner-name { font-size: 32px; font-weight: 700; }
+
+  .countdown {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 180px; font-weight: 700;
+    color: var(--accent);
+    text-shadow: 0 0 40px rgba(255,204,51,0.7);
+    z-index: 10;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .countdown.show { animation: countdownPop 0.9s ease-out forwards; }
+  @keyframes countdownPop {
+    0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
+    30%  { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+    70%  { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.6); }
+  }
+
+  /* Podium */
+  .podium { display: flex; gap: 12px; justify-content: center; align-items: flex-end; margin: 18px 0 12px; }
+  .podium-spot {
+    background: rgba(255,255,255,0.06);
+    border-radius: 8px 8px 0 0;
+    padding: 14px 12px 8px;
+    text-align: center; min-width: 110px;
+    border-top: 3px solid;
+  }
+  .podium-spot .rank { font-size: 28px; }
+  .podium-spot .pname { font-size: 16px; font-weight: 600; margin-top: 6px; word-wrap: break-word; }
+  .podium-spot.gold   { height: 140px; border-color: #ffd700; }
+  .podium-spot.silver { height: 110px; border-color: #c0c0c0; }
+  .podium-spot.bronze { height: 90px;  border-color: #cd7f32; }
+
+  .banner .btn-row { display: flex; gap: 10px; justify-content: center; margin-top: 14px; }
+  .banner button {
+    background: var(--accent); color: #111;
+    border: none; border-radius: 6px;
+    padding: 8px 16px; font-size: 14px; font-weight: 600;
+    cursor: pointer;
+  }
+  .banner button.secondary { background: rgba(255,255,255,0.1); color: #fff; }
+
+  /* Spectator HUD: leader card + live positions + event ticker */
+  .spec-hud {
+    position: absolute; top: 10px; left: 10px;
+    width: 244px; z-index: 4; color: #eaeaff;
+    font-family: 'Consolas', 'Courier New', monospace;
+    display: none;
+  }
+  .spec-hud.show { display: block; }
+  .hud-card {
+    background: rgba(8, 8, 20, 0.82);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 8px 10px;
+    margin-bottom: 6px;
+    backdrop-filter: blur(4px);
+  }
+  .hud-label {
+    font-size: 10px; letter-spacing: 1.5px;
+    color: #888; margin-bottom: 4px;
+    text-transform: uppercase; font-weight: 700;
+  }
+  .hud-leader { border-color: var(--accent); }
+  .hud-leader-name {
+    font-size: 16px; font-weight: 700;
+    display: flex; align-items: center; gap: 6px;
+    color: var(--accent);
+  }
+  .hud-leader-avatar { font-size: 18px; }
+  .hud-leader-stats {
+    display: flex; justify-content: space-between;
+    font-size: 12px; margin-top: 4px;
+    font-variant-numeric: tabular-nums;
+  }
+  .hud-leader-stats .pct { color: #fff; font-weight: 700; }
+  .hud-leader-stats .gap { color: var(--good); }
+  .hud-pos-row {
+    display: grid;
+    grid-template-columns: 22px 18px 1fr auto;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    padding: 1px 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .hud-pos-row.dead { opacity: 0.35; text-decoration: line-through; }
+  .hud-pos-row .rank { color: #888; }
+  .hud-pos-row .avatar { font-size: 13px; }
+  .hud-pos-row .name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hud-pos-row .pct { color: #aaa; }
+  .hud-events { max-height: 110px; overflow: hidden; }
+  .hud-event {
+    font-size: 11px; padding: 1px 0;
+    opacity: 0;
+    animation: hudEventIn 0.25s ease-out forwards;
+  }
+  .hud-event.bad  { color: #ff8896; }
+  .hud-event.good { color: #8df0c0; }
+  .hud-event.slow { color: #c79bff; }
+  .hud-event.win  { color: var(--accent); font-weight: 700; }
+  @keyframes hudEventIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  /* Bottom-left controls on track (HUD lives top-left now) */
+  .track-controls {
+    position: absolute; bottom: 10px; left: 10px;
+    display: flex; gap: 6px; z-index: 5;
+  }
+  .track-controls button {
+    background: rgba(0,0,0,0.55);
+    border: 1px solid var(--border);
+    color: #fff; cursor: pointer;
+    font-size: 16px;
+    width: 34px; height: 34px;
+    border-radius: 6px;
+  }
+  .track-controls button:hover { background: rgba(0,0,0,0.8); }
+
+  .tournament-status {
+    position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+    background: rgba(0,0,0,0.7); border: 1px solid var(--accent);
+    color: var(--accent); padding: 6px 16px;
+    border-radius: 16px; font-size: 13px; font-weight: 600;
+    z-index: 5; display: none;
+  }
+  .tournament-status.show { display: block; }
+</style>
+</head>
+<body>
+  <div class="stars"></div>
+  <div class="stars2"></div>
+  <div class="stars3"></div>
+
+  <div class="app">
+    <aside class="sidebar">
+      <h1>Pick a Winner!</h1>
+      <p class="subtitle">First to the finish wins.</p>
+      <!-- DELTA vs the RocketScooterRace repo (2): this back link, and the <title>/favicon
+           in <head>. The page is full-screen with overflow:hidden and has no other nav, so
+           without this a visitor from the homepage is stranded. Keep both when re-copying. -->
+      <p style="margin:-8px 0 12px;font-size:12px;">
+        <a href="/" style="color:#9aa8cc;text-decoration:none;">&larr; innovizea.com</a>
+      </p>
+
+      <div class="input-row">
+        <input id="name-input" type="text" placeholder="Add racer name..." maxlength="40" />
+        <button id="add-btn">Add</button>
+      </div>
+
+      <details class="bulk" id="bulk">
+        <summary>Bulk paste names (up to 1000)</summary>
+        <div class="bulk-body">
+          <textarea id="bulk-textarea" placeholder="Paste names here&#10;One per line, or comma/tab separated"></textarea>
+          <div class="bulk-controls">
+            <button id="bulk-add-btn">Add All</button>
+            <button id="bulk-clear-btn" class="secondary">Clear</button>
+            <span class="count" id="bulk-count">0 detected</span>
+          </div>
+        </div>
+      </details>
+
+      <div style="margin-bottom: 6px; font-size: 12px; color: #aaa;">
+        Racers <span id="racer-count" class="racer-count-badge">0</span>
+        <button id="clear-all-btn" style="float:right;background:transparent;border:none;color:#ff7a90;cursor:pointer;font-size:11px;">Clear All</button>
+      </div>
+      <ul id="racers-list" class="racers-list"></ul>
+
+      <div class="options">
+        <h3>Race Options</h3>
+        <div class="opt-row">
+          <label for="theme-select">Theme</label>
+          <select id="theme-select">
+            <option value="cosmos">🚀 Cosmos</option>
+            <option value="speedway">🏎️ Speedway</option>
+            <option value="derby">🐎 Derby</option>
+            <option value="custom">✨ Custom…</option>
+          </select>
+        </div>
+        <div class="custom-editor" id="custom-editor"></div>
+        <div class="opt-row">
+          <label for="speed-slider">Speed</label>
+          <input type="range" id="speed-slider" min="0.5" max="3" step="0.1" value="1" />
+          <span class="value" id="speed-value">1.0x</span>
+        </div>
+        <div class="opt-row">
+          <label for="obstacle-slider">Obstacles</label>
+          <input type="range" id="obstacle-slider" min="0" max="3" step="0.25" value="1" />
+          <span class="value" id="obstacle-value">1.0x</span>
+        </div>
+        <div class="opt-row">
+          <label for="tournament-toggle">Tournament Mode</label>
+          <label class="toggle">
+            <input type="checkbox" id="tournament-toggle" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="opt-row" id="heat-row" style="display:none;">
+          <label for="heat-size" title="Top N finishers from Heat 1 advance to the Final">Finalists</label>
+          <input type="number" id="heat-size" min="2" max="64" value="4" />
+        </div>
+        <div class="opt-row">
+          <label for="sound-toggle">Sound</label>
+          <label class="toggle">
+            <input type="checkbox" id="sound-toggle" checked />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="start-btn" class="btn-start" disabled>Start Race</button>
+        <button id="reset-btn" class="btn-reset">Reset</button>
+      </div>
+
+      <div class="legend" id="legend">
+        <h3>Hazards &amp; Pickups</h3>
+        <div id="legend-rows"></div>
+      </div>
+    </aside>
+
+    <section class="track" id="track">
+      <canvas class="moon" id="moon-canvas" width="22" height="22"></canvas>
+      <div class="finish-line"></div>
+
+      <canvas id="race-canvas"></canvas>
+
+      <div class="track-controls">
+        <button id="pause-btn" title="Pause/Resume">&#x23F8;</button>
+        <button id="mute-btn" title="Mute/Unmute">&#x1F50A;</button>
+      </div>
+
+      <div class="tournament-status" id="tournament-status"></div>
+
+      <div class="banner" id="banner">
+        <div class="title">WINNER!</div>
+        <div class="winner-name" id="winner-name">&mdash;</div>
+      </div>
+
+      <div class="countdown" id="countdown"></div>
+
+      <div class="spec-hud" id="spec-hud">
+        <div class="hud-card hud-leader">
+          <div class="hud-label">Leader</div>
+          <div class="hud-leader-name">
+            <span class="hud-leader-avatar" id="hud-leader-avatar">—</span>
+            <span id="hud-leader-name">—</span>
+          </div>
+          <div class="hud-leader-stats">
+            <span class="pct" id="hud-leader-pct">0%</span>
+            <span class="gap" id="hud-leader-gap">—</span>
+          </div>
+        </div>
+        <div class="hud-card">
+          <div class="hud-label">Positions</div>
+          <div id="hud-positions"></div>
+        </div>
+        <div class="hud-card">
+          <div class="hud-label">Events</div>
+          <div class="hud-events" id="hud-events"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+<script>
+(function () {
+  'use strict';
+
+  const STORAGE_KEY = 'rocketRace.v2';
+  const MAX_RACERS = 1000;
+
+  /* ----- Color generator ----- */
+  function colorForIndex(i) {
+    const hue = (i * 47) % 360;
+    const sat = 70 + ((i * 13) % 20);
+    const light = 55 + ((i * 7) % 15);
+    return `hsl(${hue}, ${sat}%, ${light}%)`;
+  }
+
+  /* ----- Obstacle defs (behavior only — visuals come from the active theme) ----- */
+  const OBSTACLE_TYPES = {
+    asteroid:  { className: 'asteroid' },
+    blackhole: { className: 'blackhole' },
+    ufo:       { className: 'ufo' },
+    fuel:      { className: 'fuel' },
+  };
+  const OBSTACLE_ORDER = ['asteroid', 'blackhole', 'ufo', 'fuel'];
+
+  /* ----- Themes ----- */
+  // Each theme defines visuals for the racer, the finish destination, and the four
+  // obstacle slots. `kind` is one of: 'pixelRocket' | 'pixelMoon' | 'emoji' | 'image'.
+  const BUILTIN_THEMES = {
+    cosmos: {
+      id: 'cosmos', name: '🚀 Cosmos',
+      racer:  { kind: 'pixelRocket' },
+      finish: { kind: 'pixelMoon' },
+      obstacles: {
+        asteroid:  { kind: 'emoji', value: '☄️',  label: 'Asteroid — instant KO' },
+        blackhole: { kind: 'emoji', value: '🕳️', label: 'Black hole — slows you' },
+        ufo:       { kind: 'emoji', value: '🛸',  label: 'UFO — abducts a racer' },
+        fuel:      { kind: 'emoji', value: '⛽',  label: 'Fuel — speed boost' },
+      },
+    },
+    speedway: {
+      id: 'speedway', name: '🏎️ Speedway',
+      racer:  { kind: 'emoji', value: '🏎️' },
+      finish: { kind: 'emoji', value: '🏁' },
+      obstacles: {
+        asteroid:  { kind: 'emoji', value: '🚧', label: 'Barricade — crash' },
+        blackhole: { kind: 'emoji', value: '🛢️', label: 'Oil slick — slows you' },
+        ufo:       { kind: 'emoji', value: '🍌', label: 'Banana peel — wipeout' },
+        fuel:      { kind: 'emoji', value: '⚡', label: 'Nitro — speed boost' },
+      },
+    },
+    derby: {
+      id: 'derby', name: '🐎 Derby',
+      racer:  { kind: 'emoji', value: '🐎' },
+      finish: { kind: 'emoji', value: '🏆' },
+      obstacles: {
+        asteroid:  { kind: 'emoji', value: '🚧', label: 'Hurdle — refusal' },
+        blackhole: { kind: 'emoji', value: '💦', label: 'Mud puddle — slows you' },
+        ufo:       { kind: 'emoji', value: '🌪️', label: 'Stormwind — buck off' },
+        fuel:      { kind: 'emoji', value: '🥕', label: 'Carrot — sprint!' },
+      },
+    },
+  };
+
+  function emptyCustomTheme() {
+    return {
+      id: 'custom', name: '✨ Custom',
+      racer:  { kind: 'emoji', value: '🚀' },
+      finish: { kind: 'emoji', value: '🎯' },
+      obstacles: {
+        asteroid:  { kind: 'emoji', value: '☄️',  label: 'KO obstacle' },
+        blackhole: { kind: 'emoji', value: '🕳️', label: 'Slow obstacle' },
+        ufo:       { kind: 'emoji', value: '🛸',  label: 'KO obstacle' },
+        fuel:      { kind: 'emoji', value: '⛽',  label: 'Boost obstacle' },
+      },
+    };
+  }
+  const OBSTACLE_SLOT_HINTS = {
+    asteroid:  { hint: 'KO',    placeholder: '☄️' },
+    blackhole: { hint: 'Slow',  placeholder: '🕳️' },
+    ufo:       { hint: 'KO',    placeholder: '🛸' },
+    fuel:      { hint: 'Boost', placeholder: '⛽' },
+  };
+
+  function getActiveTheme() {
+    if (state.themeId === 'custom') return state.customTheme || emptyCustomTheme();
+    return BUILTIN_THEMES[state.themeId] || BUILTIN_THEMES.cosmos;
+  }
+
+  /* ----- State ----- */
+  const state = {
+    racers: [],
+    obstacles: [],
+    particles: [],
+    isRunning: false,
+    isFinished: false,
+    isPaused: false,
+    isCountingDown: false,
+    rafId: null,
+    lastTime: 0,
+    frameSkip: false,
+    spawnAcc: 0,
+    lbAcc: 0,
+    maxProgress: 0,
+    speedMult: 1,
+    obstacleMult: 1,
+    soundOn: true,
+    cachedTrackH: 0,
+    cachedTrackW: 0,
+    laneWidth: 60,
+    laneAreaW: 0,
+    laneAreaX: 0,
+    dpr: 1,
+    // Tournament
+    tournament: null, // { round, finalistsCount, allNames, qualifiers }
+    // Theme
+    themeId: 'cosmos',
+    customTheme: null, // populated on first edit
+  };
+
+  /* ----- DOM ----- */
+  const $ = (s) => document.querySelector(s);
+  const nameInput = $('#name-input');
+  const addBtn    = $('#add-btn');
+  const startBtn  = $('#start-btn');
+  const resetBtn  = $('#reset-btn');
+  const racersListEl = $('#racers-list');
+  const racerCountEl = $('#racer-count');
+  const clearAllBtn  = $('#clear-all-btn');
+  const bulkTextarea = $('#bulk-textarea');
+  const bulkAddBtn   = $('#bulk-add-btn');
+  const bulkClearBtn = $('#bulk-clear-btn');
+  const bulkCountEl  = $('#bulk-count');
+  const specHud         = $('#spec-hud');
+  const hudLeaderName   = $('#hud-leader-name');
+  const hudLeaderAvatar = $('#hud-leader-avatar');
+  const hudLeaderPct    = $('#hud-leader-pct');
+  const hudLeaderGap    = $('#hud-leader-gap');
+  const hudPositions    = $('#hud-positions');
+  const hudEvents       = $('#hud-events');
+  const trackEl   = $('#track');
+  const canvas    = $('#race-canvas');
+  const ctx       = canvas.getContext('2d');
+  const bannerEl  = $('#banner');
+  const countdownEl = $('#countdown');
+  const pauseBtn  = $('#pause-btn');
+  const muteBtn   = $('#mute-btn');
+  const speedSlider = $('#speed-slider');
+  const speedValue  = $('#speed-value');
+  const obstacleSlider = $('#obstacle-slider');
+  const obstacleValue  = $('#obstacle-value');
+  const soundToggle = $('#sound-toggle');
+  const tournamentToggle = $('#tournament-toggle');
+  const heatRow    = $('#heat-row');
+  const heatSizeInput = $('#heat-size');
+  const tournamentStatus = $('#tournament-status');
+  const themeSelect      = $('#theme-select');
+  const customEditor     = $('#custom-editor');
+  const legendRowsEl     = $('#legend-rows');
+
+  /* ----- Helpers ----- */
+  function uid() { return Math.random().toString(36).slice(2, 9); }
+  function escapeHtml(s) {
+    return s.replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function logEvent(text, cls) {
+    if (!hudEvents) return;
+    const div = document.createElement('div');
+    div.className = 'hud-event' + (cls ? ' ' + cls : '');
+    div.textContent = text;
+    hudEvents.insertBefore(div, hudEvents.firstChild);
+    while (hudEvents.children.length > 6) hudEvents.removeChild(hudEvents.lastChild);
+  }
+
+  /* ----- Theme application ----- */
+  function applyTheme() {
+    paintFinish();
+    renderLegend();
+    // Reskin obstacles already on the track so a mid-race theme switch isn't jarring.
+    state.obstacles.forEach(o => reskinObstacle(o));
+    if (themeSelect) themeSelect.value = state.themeId;
+    if (customEditor) customEditor.classList.toggle('show', state.themeId === 'custom');
+    if (state.themeId === 'custom') renderCustomEditor();
+  }
+  function reskinObstacle(o) {
+    const tdef = getActiveTheme().obstacles[o.type];
+    o.el.classList.remove('img-obstacle');
+    o.el.style.backgroundImage = '';
+    if (tdef.kind === 'image' && tdef.value) {
+      o.el.classList.add('img-obstacle');
+      o.el.style.backgroundImage = `url("${tdef.value}")`;
+      o.el.textContent = '';
+    } else {
+      o.el.textContent = tdef.value || '?';
+    }
+  }
+  function renderLegend() {
+    if (!legendRowsEl) return;
+    const theme = getActiveTheme();
+    legendRowsEl.innerHTML = OBSTACLE_ORDER.map(type => {
+      const tdef = theme.obstacles[type];
+      let icon = '';
+      if (tdef.kind === 'image' && tdef.value) {
+        icon = `<img src="${tdef.value}" alt="" style="height:18px;width:18px;object-fit:contain;vertical-align:middle;">`;
+      } else {
+        icon = escapeHtml(tdef.value || '?');
+      }
+      return `<div class="legend-row"><span class="icon">${icon}</span> ${escapeHtml(tdef.label || '')}</div>`;
+    }).join('');
+  }
+
+  /* ----- Custom theme editor ----- */
+  function ensureCustomTheme() {
+    if (!state.customTheme) state.customTheme = emptyCustomTheme();
+    return state.customTheme;
+  }
+  function renderCustomEditor() {
+    if (!customEditor) return;
+    const ct = ensureCustomTheme();
+    const rows = [
+      { key: 'racer',  label: 'Racer',  hint: '',      def: ct.racer },
+      { key: 'finish', label: 'Finish', hint: '',      def: ct.finish },
+      ...OBSTACLE_ORDER.map(type => ({
+        key: 'obstacle.' + type,
+        label: OBSTACLE_SLOT_HINTS[type].placeholder + ' slot',
+        hint:  OBSTACLE_SLOT_HINTS[type].hint,
+        def:   ct.obstacles[type],
+      })),
+    ];
+    const renderPreview = (def) => {
+      if (def.kind === 'image' && def.value) {
+        return `<div class="preview-thumb" style="background-image:url('${def.value}');"></div>`;
+      }
+      return `<span style="font-size:18px;">${escapeHtml(def.value || '')}</span>`;
+    };
+    customEditor.innerHTML = '<h4>Custom Assets</h4>' + rows.map(r => `
+      <div class="custom-row" data-slot="${r.key}">
+        <span class="slot-label">${escapeHtml(r.label)}${r.hint ? ' <span class="slot-hint">' + r.hint + '</span>' : ''}</span>
+        <input type="text" class="emoji-in" maxlength="8" value="${r.def.kind === 'emoji' ? escapeHtml(r.def.value || '') : ''}" placeholder="emoji" />
+        <input type="file" class="file-in" accept="image/*" />
+        ${renderPreview(r.def)}
+      </div>
+    `).join('');
+
+    customEditor.querySelectorAll('.custom-row').forEach(row => {
+      const slot = row.dataset.slot;
+      row.querySelector('.emoji-in').addEventListener('input', (e) => {
+        setCustomSlot(slot, { kind: 'emoji', value: e.target.value.trim() || '?' });
+      });
+      row.querySelector('.file-in').addEventListener('change', async (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        try {
+          const dataUrl = await fileToDataURL(file, 256);
+          setCustomSlot(slot, { kind: 'image', value: dataUrl });
+        } catch (err) {
+          logEvent('Image upload failed', 'bad');
+        }
+      });
+    });
+  }
+  function setCustomSlot(slot, def) {
+    const ct = ensureCustomTheme();
+    // Preserve labels we already have so the legend stays meaningful.
+    if (slot === 'racer') ct.racer = def;
+    else if (slot === 'finish') ct.finish = def;
+    else if (slot.startsWith('obstacle.')) {
+      const type = slot.slice('obstacle.'.length);
+      ct.obstacles[type] = { ...ct.obstacles[type], ...def };
+    }
+    // Clear caches for swapped images/emoji so the renderer picks up the change.
+    emojiSpriteCache.clear();
+    applyTheme();
+    renderCustomEditor();
+    persist();
+  }
+
+  // Reads a File as a data URL, downscaled to maxEdge px (keeps localStorage small).
+  function fileToDataURL(file, maxEdge) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = reject;
+      reader.onload = () => {
+        const img = new Image();
+        img.onerror = reject;
+        img.onload = () => {
+          const scale = Math.min(1, maxEdge / Math.max(img.naturalWidth, img.naturalHeight));
+          const w = Math.round(img.naturalWidth * scale);
+          const h = Math.round(img.naturalHeight * scale);
+          const c = document.createElement('canvas');
+          c.width = w; c.height = h;
+          c.getContext('2d').drawImage(img, 0, 0, w, h);
+          resolve(c.toDataURL(file.type === 'image/png' ? 'image/png' : 'image/jpeg', 0.85));
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function showBanner(html) {
+    bannerEl.innerHTML = html;
+    bannerEl.classList.add('show');
+  }
+  function hideBanner() { bannerEl.classList.remove('show'); bannerEl.innerHTML = ''; }
+
+  /* ----- Audio (Web Audio synth) ----- */
+  let audioCtx = null;
+  function ensureAudio() {
+    if (!state.soundOn) return null;
+    if (!audioCtx) {
+      try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+      catch (e) { return null; }
+    }
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+  function beep(freq, dur, type, vol) {
+    const ac = ensureAudio(); if (!ac) return;
+    const osc = ac.createOscillator();
+    const gain = ac.createGain();
+    osc.type = type || 'square';
+    osc.frequency.value = freq;
+    gain.gain.value = vol || 0.15;
+    osc.connect(gain).connect(ac.destination);
+    const now = ac.currentTime;
+    gain.gain.setValueAtTime(vol || 0.15, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+    osc.start(now);
+    osc.stop(now + dur);
+  }
+  function noise(dur, vol) {
+    const ac = ensureAudio(); if (!ac) return;
+    const bufSize = Math.floor(ac.sampleRate * dur);
+    const buf = ac.createBuffer(1, bufSize, ac.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < bufSize; i++) data[i] = (Math.random() * 2 - 1) * (1 - i/bufSize);
+    const src = ac.createBufferSource();
+    src.buffer = buf;
+    const gain = ac.createGain();
+    gain.gain.value = vol || 0.2;
+    src.connect(gain).connect(ac.destination);
+    src.start();
+  }
+  function sfx(name) {
+    switch (name) {
+      case 'tick':  beep(440, 0.15, 'square', 0.12); break;
+      case 'go':    beep(880, 0.35, 'square', 0.18); break;
+      case 'crash': noise(0.25, 0.25); break;
+      case 'boost': beep(660, 0.08, 'sawtooth', 0.12); setTimeout(() => beep(990, 0.1, 'sawtooth', 0.12), 60); break;
+      case 'slow':  beep(220, 0.4, 'sine', 0.12); break;
+      case 'win':
+        beep(523, 0.15, 'triangle', 0.18);
+        setTimeout(() => beep(659, 0.15, 'triangle', 0.18), 130);
+        setTimeout(() => beep(784, 0.15, 'triangle', 0.18), 260);
+        setTimeout(() => beep(1047, 0.4, 'triangle', 0.18), 390);
+        break;
+    }
+  }
+
+  /* ----- Persistence ----- */
+  function persist() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        names: state.racers.map(r => r.name),
+        speedMult: state.speedMult,
+        obstacleMult: state.obstacleMult,
+        soundOn: state.soundOn,
+        tournament: tournamentToggle.checked,
+        heatSize: parseInt(heatSizeInput.value, 10) || 16,
+        themeId: state.themeId,
+        customTheme: state.customTheme,
+      }));
+    } catch (e) { /* quota */ }
+  }
+  function restore() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      if (Array.isArray(data.names)) {
+        data.names.forEach(n => addRacer(n, { silent: true }));
+      }
+      if (typeof data.speedMult === 'number') {
+        state.speedMult = data.speedMult;
+        speedSlider.value = data.speedMult;
+        speedValue.textContent = data.speedMult.toFixed(1) + 'x';
+      }
+      if (typeof data.obstacleMult === 'number') {
+        state.obstacleMult = data.obstacleMult;
+        obstacleSlider.value = data.obstacleMult;
+        obstacleValue.textContent = data.obstacleMult <= 0 ? 'Off' : data.obstacleMult.toFixed(2).replace(/\.?0+$/, '') + 'x';
+      }
+      if (typeof data.soundOn === 'boolean') {
+        state.soundOn = data.soundOn;
+        soundToggle.checked = data.soundOn;
+        muteBtn.textContent = data.soundOn ? '\u{1F50A}' : '\u{1F507}';
+      }
+      if (data.tournament) {
+        tournamentToggle.checked = true;
+        heatRow.style.display = '';
+      }
+      if (data.heatSize) heatSizeInput.value = data.heatSize;
+      if (typeof data.themeId === 'string' && (BUILTIN_THEMES[data.themeId] || data.themeId === 'custom')) {
+        state.themeId = data.themeId;
+      }
+      if (data.customTheme && typeof data.customTheme === 'object') {
+        state.customTheme = data.customTheme;
+      }
+    } catch (e) { /* ignore */ }
+  }
+
+  /* ----- Racer roster ----- */
+  function renderRacersList() {
+    racersListEl.innerHTML = '';
+    racerCountEl.textContent = state.racers.length;
+    if (state.racers.length === 0) {
+      const li = document.createElement('li');
+      li.className = 'empty-hint';
+      li.textContent = 'Add 2+ racers to start';
+      racersListEl.appendChild(li);
+    } else {
+      const MAX_SHOWN = 50;
+      const shown = state.racers.slice(0, MAX_SHOWN);
+      const frag = document.createDocumentFragment();
+      shown.forEach((r) => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <span class="dot" style="background:${r.color}"></span>
+          <span class="name">${escapeHtml(r.name)}</span>
+          <button class="remove" data-id="${r.id}" title="Remove">&times;</button>
+        `;
+        frag.appendChild(li);
+      });
+      racersListEl.appendChild(frag);
+      if (state.racers.length > MAX_SHOWN) {
+        const more = document.createElement('li');
+        more.className = 'empty-hint';
+        more.textContent = `+ ${state.racers.length - MAX_SHOWN} more not shown`;
+        racersListEl.appendChild(more);
+      }
+    }
+    startBtn.disabled = state.racers.length < 2 || state.isRunning;
+  }
+
+  function addRacer(name, opts) {
+    name = (name || '').trim();
+    if (!name) return false;
+    if (state.racers.length >= MAX_RACERS) {
+      if (!opts || !opts.silent) logEvent(`Max ${MAX_RACERS} racers.`, 'bad');
+      return false;
+    }
+    state.racers.push({
+      id: uid(),
+      name,
+      color: colorForIndex(state.racers.length),
+      avatar: avatarFor(name),
+      progress: 0, status: 'racing',
+      slowUntil: 0, boostUntil: 0,
+      laneIndex: 0, laneCenter: 0,
+    });
+    if (!opts || !opts.silent) { renderRacersList(); persist(); }
+    return true;
+  }
+
+  function removeRacer(id) {
+    state.racers = state.racers.filter(r => r.id !== id);
+    state.racers.forEach((r, i) => { r.color = colorForIndex(i); });
+    renderRacersList();
+    persist();
+  }
+
+  function clearAllRacers() {
+    if (state.isRunning) return;
+    state.racers = [];
+    renderRacersList();
+    persist();
+  }
+
+  function parseBulkNames(text) {
+    if (!text) return [];
+    const tokens = text.split(/[\n,;\t]+/g);
+    const seen = new Set(state.racers.map(r => r.name.toLowerCase()));
+    const result = [];
+    for (const raw of tokens) {
+      const name = raw.trim().replace(/\s+/g, ' ').slice(0, 40);
+      if (!name) continue;
+      const key = name.toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      result.push(name);
+    }
+    return result;
+  }
+
+  function updateBulkCount() {
+    const names = parseBulkNames(bulkTextarea.value);
+    const room = MAX_RACERS - state.racers.length;
+    const willAdd = Math.min(names.length, Math.max(0, room));
+    bulkCountEl.textContent = names.length === willAdd
+      ? `${names.length} ready to add`
+      : `${willAdd} ready (${names.length - willAdd} would exceed cap)`;
+  }
+
+  function bulkAdd() {
+    const names = parseBulkNames(bulkTextarea.value);
+    if (names.length === 0) { logEvent('No new names detected.', 'bad'); return; }
+    let added = 0;
+    for (const n of names) if (addRacer(n, { silent: true })) added++;
+    renderRacersList();
+    persist();
+    bulkTextarea.value = '';
+    updateBulkCount();
+    logEvent(`Bulk added ${added} racer${added===1?'':'s'}.`, 'good');
+  }
+
+  /* ----- Canvas sizing ----- */
+  function sizeCanvas() {
+    const w = trackEl.clientWidth;
+    const h = trackEl.clientHeight;
+    state.cachedTrackW = w;
+    state.cachedTrackH = h;
+    state.dpr = window.devicePixelRatio || 1;
+    canvas.width  = Math.floor(w * state.dpr);
+    canvas.height = Math.floor(h * state.dpr);
+    canvas.style.width  = w + 'px';
+    canvas.style.height = h + 'px';
+    ctx.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
+    cacheLaneCenters();
+  }
+  function cacheLaneCenters() {
+    const h = state.cachedTrackH;
+    const n = state.racers.length;
+    if (!n) return;
+    // Pack row — centered ~80% of track height. Race runs left → right, so each
+    // racer's stable Y position comes from a name-hash. No per-racer lane visuals.
+    const areaH = Math.max(140, h * 0.80);
+    const startY = (h - areaH) / 2;
+    const inset = 12; // keep racers off the very top/bottom edges
+    state.laneAreaH = areaH;
+    state.laneAreaY = startY;
+    state.racers.forEach((r, i) => {
+      r.laneIndex = i;
+      if (typeof r.packSeed !== 'number') {
+        let hh = 0;
+        const src = r.name + '_' + i;
+        for (let c = 0; c < src.length; c++) hh = ((hh << 5) - hh + src.charCodeAt(c)) | 0;
+        r.packSeed = (Math.abs(hh) % 10007) / 10007;
+      }
+      r.laneCenter = startY + inset + r.packSeed * (areaH - inset * 2);
+    });
+  }
+  window.addEventListener('resize', sizeCanvas);
+
+  /* ----- Pixel-art sprite system ----- */
+  // 11 x 16 source pixels. Characters:
+  //   . = transparent, X = outline, H = main color,
+  //   W = window/glass,  D = dark accent
+  const ROCKET_SRC = [
+    '.....X.....',
+    '....XHX....',
+    '....XHX....',
+    '...XHHHX...',
+    '...XHHHX...',
+    '..XHWWWHX..',
+    '..XHWWWHX..',
+    '..XHHHHHX..',
+    '..XHHHHHX..',
+    '..XHHDHHX..',
+    '..XHHHHHX..',
+    '.XHHHHHHHX.',
+    'XXHHHHHHHXX',
+    'X.XHHHHHX.X',
+    'X..XHHHX..X',
+    '....XDX....',
+  ];
+  const ROCKET_SRC_W = ROCKET_SRC[0].length; // 11
+  const ROCKET_SRC_H = ROCKET_SRC.length;    // 16
+  const SPRITE_PX = 4; // source-pixel size at cache time (44x64 canvas)
+
+  function shadeColor(color, amt) {
+    // amt < 0 darkens, amt > 0 lightens (toward black/white).
+    const hsl = /^hsla?\(\s*(\d+(?:\.\d+)?)\s*,\s*([\d.]+)%\s*,\s*([\d.]+)%/.exec(color);
+    if (hsl) {
+      const h = hsl[1], s = hsl[2];
+      const ln = parseFloat(hsl[3]);
+      const newL = amt < 0 ? ln * (1 + amt) : ln + (100 - ln) * amt;
+      return `hsl(${h}, ${s}%, ${Math.max(0, Math.min(100, newL))}%)`;
+    }
+    const hex = color.replace('#','');
+    if (hex.length < 6) return color;
+    const r = parseInt(hex.slice(0,2), 16);
+    const g = parseInt(hex.slice(2,4), 16);
+    const b = parseInt(hex.slice(4,6), 16);
+    const adj = v => Math.max(0, Math.min(255, Math.round(amt < 0 ? v * (1 + amt) : v + (255 - v) * amt)));
+    return '#' + [adj(r), adj(g), adj(b)].map(v => v.toString(16).padStart(2,'0')).join('');
+  }
+
+  const rocketSpriteCache = new Map();
+  function getRocketSprite(color) {
+    let s = rocketSpriteCache.get(color);
+    if (s) return s;
+    const c = document.createElement('canvas');
+    c.width = ROCKET_SRC_W * SPRITE_PX;
+    c.height = ROCKET_SRC_H * SPRITE_PX;
+    const sx = c.getContext('2d');
+    sx.imageSmoothingEnabled = false;
+    const palette = { X: '#0a0a14', H: color, W: '#7be3ff', D: shadeColor(color, -0.4) };
+    for (let y = 0; y < ROCKET_SRC_H; y++) {
+      const row = ROCKET_SRC[y];
+      for (let x = 0; x < ROCKET_SRC_W; x++) {
+        const ch = row[x];
+        if (ch === '.') continue;
+        sx.fillStyle = palette[ch];
+        sx.fillRect(x * SPRITE_PX, y * SPRITE_PX, SPRITE_PX, SPRITE_PX);
+      }
+    }
+    rocketSpriteCache.set(color, c);
+    return s = c;
+  }
+  // Emoji rendered to an offscreen canvas, cached by glyph so we don't lay out text every frame.
+  const emojiSpriteCache = new Map();
+  function getEmojiSprite(emoji) {
+    let c = emojiSpriteCache.get(emoji);
+    if (c) return c;
+    c = document.createElement('canvas');
+    c.width = c.height = 64;
+    const sx = c.getContext('2d');
+    sx.font = '52px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';
+    sx.textAlign = 'center';
+    sx.textBaseline = 'middle';
+    sx.fillText(emoji || '?', 32, 36);
+    emojiSpriteCache.set(emoji, c);
+    return c;
+  }
+
+  // HTMLImageElement cache for user-supplied (data URL) or theme images.
+  const imageCache = new Map();
+  function loadImage(src) {
+    if (!src) return Promise.reject(new Error('no src'));
+    if (imageCache.has(src)) {
+      const img = imageCache.get(src);
+      if (img.complete && img.naturalWidth) return Promise.resolve(img);
+      return new Promise((res, rej) => {
+        img.addEventListener('load', () => res(img), { once: true });
+        img.addEventListener('error', rej, { once: true });
+      });
+    }
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = src;
+      imageCache.set(src, img);
+    });
+  }
+  function getImageSync(src) {
+    const img = imageCache.get(src);
+    return img && img.complete && img.naturalWidth ? img : null;
+  }
+
+  // Returns { sprite: drawable, aspect, kind } for the active racer visual.
+  // For 'pixelRocket' the sprite is per-color; for emoji/image it's shared across all racers.
+  function getRacerVisual(racer, theme) {
+    const def = theme.racer;
+    if (def.kind === 'pixelRocket') {
+      return { sprite: getRocketSprite(racer.color), aspect: ROCKET_SRC_W / ROCKET_SRC_H, kind: 'pixelRocket' };
+    }
+    if (def.kind === 'emoji') {
+      return { sprite: getEmojiSprite(def.value || '🚀'), aspect: 1, kind: 'emoji' };
+    }
+    if (def.kind === 'image') {
+      const img = getImageSync(def.value);
+      if (img) return { sprite: img, aspect: img.naturalWidth / img.naturalHeight, kind: 'image' };
+      // Image not loaded yet — kick it off and fall back to a placeholder emoji this frame.
+      loadImage(def.value).catch(() => {});
+      return { sprite: getEmojiSprite('🚀'), aspect: 1, kind: 'emoji' };
+    }
+    return { sprite: getEmojiSprite('🚀'), aspect: 1, kind: 'emoji' };
+  }
+
+  // Paints the finish destination into the .moon canvas. Honours the active theme.
+  function paintFinish() {
+    const c = document.getElementById('moon-canvas');
+    if (!c) return;
+    const def = getActiveTheme().finish;
+    if (def.kind === 'pixelMoon') {
+      c.width = c.height = 22;
+      c.style.imageRendering = 'pixelated';
+      paintPixelMoon(c);
+      return;
+    }
+    c.width = c.height = 128;
+    c.style.imageRendering = 'auto';
+    const x = c.getContext('2d');
+    x.clearRect(0, 0, c.width, c.height);
+    if (def.kind === 'emoji') {
+      x.font = '108px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';
+      x.textAlign = 'center';
+      x.textBaseline = 'middle';
+      x.fillText(def.value || '🎯', 64, 72);
+    } else if (def.kind === 'image') {
+      const img = getImageSync(def.value);
+      if (img) {
+        x.drawImage(img, 0, 0, c.width, c.height);
+      } else {
+        loadImage(def.value).then(paintFinish).catch(() => {});
+      }
+    }
+  }
+
+  // Pixel-art moon: rough discrete circle with crater pits + light side.
+  function paintPixelMoon(c) {
+    if (!c) c = document.getElementById('moon-canvas');
+    if (!c) return;
+    const S = c.width; // square; e.g. 22
+    const x = c.getContext('2d');
+    x.imageSmoothingEnabled = false;
+    x.clearRect(0, 0, S, S);
+    const cx = S / 2 - 0.5, cy = S / 2 - 0.5, r = S / 2 - 1;
+    for (let py = 0; py < S; py++) {
+      for (let px = 0; px < S; px++) {
+        const dx = px - cx, dy = py - cy;
+        const d = Math.sqrt(dx*dx + dy*dy);
+        if (d > r) continue;
+        const shade = d / r;
+        // Light-side bias: top-left highlight
+        const lit = (dx + dy) < -3;
+        let col = '#e8e8b4';
+        if (shade > 0.88)      col = '#6e6e4a';
+        else if (shade > 0.7)  col = '#a8a878';
+        else if (shade > 0.5)  col = '#c8c898';
+        else if (lit)          col = '#fffacd';
+        x.fillStyle = col;
+        x.fillRect(px, py, 1, 1);
+      }
+    }
+    // Craters (carved as pits)
+    const craters = [[7,6,1],[9,9,1],[14,7,2],[12,14,1],[16,13,1],[6,15,1]];
+    for (const [ccx, ccy, cr] of craters) {
+      for (let dy = -cr; dy <= cr; dy++) {
+        for (let dx = -cr; dx <= cr; dx++) {
+          if (dx*dx + dy*dy > cr*cr) continue;
+          const px = ccx + dx, py = ccy + dy;
+          if (px < 0 || py < 0 || px >= S || py >= S) continue;
+          // Stay inside the moon disc
+          if ((px - cx) ** 2 + (py - cy) ** 2 > r * r) continue;
+          x.fillStyle = '#5a5a3a';
+          x.fillRect(px, py, 1, 1);
+        }
+      }
+    }
+  }
+
+  // Avatar pool — deterministic per name so the same person always gets the same critter.
+  const AVATARS = ['🦊','🐻','🦁','🐯','🐸','🐧','🐙','🦄','🐲','👽','🤖','🐺','🦖','🦜','🐼','🐱','🦉','🐢','🐝','🦋'];
+  function avatarFor(name) {
+    let h = 0;
+    for (let i = 0; i < name.length; i++) h = ((h << 5) - h + name.charCodeAt(i)) | 0;
+    return AVATARS[Math.abs(h) % AVATARS.length];
+  }
+
+  // Outlined white name painted on the lower edge of the rocket. No pill,
+  // no background — the image stays fully visible underneath.
+  function drawNameOnRacer(ctx2, cx, cy, drawW, drawH, racer) {
+    const name = racer.name.length > 14 ? racer.name.slice(0, 13) + '…' : racer.name;
+    const fontSize = Math.max(10, Math.min(14, Math.round(drawW * 0.20)));
+    const textY = cy + drawH / 2 - fontSize / 2 - 1;
+    ctx2.save();
+    ctx2.font = `900 ${fontSize}px "Segoe UI", Tahoma, sans-serif`;
+    ctx2.textAlign = 'center';
+    ctx2.textBaseline = 'middle';
+    ctx2.lineWidth = Math.max(3, fontSize * 0.32);
+    ctx2.lineJoin = 'round';
+    ctx2.strokeStyle = 'rgba(0,0,0,0.92)';
+    ctx2.strokeText(name, cx, textY);
+    ctx2.fillStyle = '#fff';
+    ctx2.fillText(name, cx, textY);
+    ctx2.restore();
+  }
+
+
+  // Pixel flame drawn beneath the rocket — 2-frame animation.
+  function drawFlame(ctx, cx, baseY, size, frame, mode) {
+    // mode: 'normal' | 'boost' | 'slow'
+    const u = size / ROCKET_SRC_H; // one source pixel in render space
+    const colors = mode === 'boost' ? ['#a8ffd1','#34e89e','#0ea36b']
+                 : mode === 'slow'  ? ['#e7ccff','#9d4edd','#5e2a8a']
+                                    : ['#ffe680','#ffaa33','#ff5a2e'];
+    // 5x4 flame source, two frames
+    const FRAMES = [
+      ['.OOO.', '.OYO.', 'OYYYO', '.OYO.', '..O..'],
+      ['..O..', '.OYO.', 'OYYYO', '.OYO.', '.O.O.'],
+    ];
+    const f = FRAMES[frame & 1];
+    for (let y = 0; y < f.length; y++) {
+      const row = f[y];
+      for (let x = 0; x < row.length; x++) {
+        const ch = row[x];
+        if (ch === '.') continue;
+        ctx.fillStyle = ch === 'Y' ? colors[0] : ch === 'O' ? colors[1] : colors[2];
+        const px = cx + (x - row.length / 2) * u;
+        const py = baseY + y * u;
+        ctx.fillRect(Math.floor(px), Math.floor(py), Math.ceil(u), Math.ceil(u));
+      }
+    }
+  }
+
+  /* ----- Race engine ----- */
+  function pickRocketSize(n) {
+    if (n <= 6)   return 96;
+    if (n <= 12)  return 72;
+    if (n <= 25)  return 52;
+    if (n <= 60)  return 36;
+    if (n <= 150) return 22;
+    return 14;
+  }
+
+  function startRace() {
+    if (state.racers.length < 2) return;
+    if (state.isRunning) return;
+    persist();
+    if (tournamentToggle.checked) startTournament();
+    else startSingleRace(state.racers.map(r => r.name));
+  }
+
+  function startSingleRace(names) {
+    setActiveRoster(names);
+    runRaceFlow(false);
+  }
+
+  function setActiveRoster(names) {
+    state.racers = [];
+    names.forEach(n => addRacer(n, { silent: true }));
+    renderRacersList();
+  }
+
+  function runRaceFlow(isTournamentRound) {
+    state.obstacles.forEach(o => o.el && o.el.remove());
+    state.obstacles = [];
+    state.particles = [];
+    state.racers.forEach(r => {
+      r.progress = 0; r.status = 'racing';
+      r.slowUntil = 0; r.boostUntil = 0;
+    });
+    state.isFinished = false;
+    state.isPaused = false;
+    state.spawnAcc = 0;
+    state.maxProgress = 0;
+    hideBanner();
+    sizeCanvas();
+    specHud.classList.add('show');
+    updateSpecHud();
+    startBtn.disabled = true;
+    countdown(() => {
+      state.isRunning = true;
+      state.lastTime = performance.now();
+      state.rafId = requestAnimationFrame(tick);
+      sfx('go');
+      logEvent('GO!', 'good');
+    });
+  }
+
+  function countdown(done) {
+    state.isCountingDown = true;
+    const seq = ['3', '2', '1', 'GO!'];
+    let i = 0;
+    const step = () => {
+      if (i >= seq.length) {
+        state.isCountingDown = false;
+        done();
+        return;
+      }
+      const txt = seq[i++];
+      countdownEl.textContent = txt;
+      countdownEl.classList.remove('show');
+      void countdownEl.offsetWidth;
+      countdownEl.classList.add('show');
+      sfx(txt === 'GO!' ? 'go' : 'tick');
+      setTimeout(step, 800);
+    };
+    step();
+  }
+
+  function resetRace() {
+    if (state.rafId) cancelAnimationFrame(state.rafId);
+    state.rafId = null;
+    state.isRunning = false;
+    state.isFinished = false;
+    state.isPaused = false;
+    state.isCountingDown = false;
+    state.tournament = null;
+    tournamentStatus.classList.remove('show');
+    state.racers.forEach(r => { r.progress = 0; r.status = 'racing'; r.slowUntil = 0; r.boostUntil = 0; });
+    state.obstacles.forEach(o => o.el && o.el.remove());
+    state.obstacles = [];
+    state.particles = [];
+    specHud.classList.remove('show');
+    hideBanner();
+    if (hudEvents) hudEvents.innerHTML = '';
+    ctx.clearRect(0, 0, state.cachedTrackW, state.cachedTrackH);
+    renderRacersList();
+  }
+
+  function togglePause() {
+    if (!state.isRunning) return;
+    state.isPaused = !state.isPaused;
+    pauseBtn.textContent = state.isPaused ? '▶' : '⏸';
+    if (!state.isPaused) {
+      state.lastTime = performance.now();
+      state.rafId = requestAnimationFrame(tick);
+    }
+  }
+
+  function tick(now) {
+    if (state.isPaused) return;
+    const dt = Math.min(64, now - state.lastTime);
+    state.lastTime = now;
+
+    // Throttle to 30fps when crowded
+    const throttle = state.racers.length > 200;
+    if (throttle) {
+      state.frameSkip = !state.frameSkip;
+      if (state.frameSkip) { state.rafId = requestAnimationFrame(tick); return; }
+    }
+
+    updateRacers(dt, now);
+    spawnObstacles(dt);
+    updateObstacles(dt, now);
+    updateParticles(dt);
+    render();
+    checkWinner();
+
+    state.lbAcc += dt;
+    if (state.lbAcc > 250) { state.lbAcc = 0; updateSpecHud(); }
+
+    if (state.isRunning) state.rafId = requestAnimationFrame(tick);
+  }
+
+  function updateRacers(dt, now) {
+    const dtSec = dt / 1000;
+    const mult = state.speedMult;
+    const leaderP = state.maxProgress || 0;
+
+    let maxP = 0;
+    const racers = state.racers;
+    for (let i = 0; i < racers.length; i++) {
+      const r = racers[i];
+      if (r.status !== 'racing') {
+        if (r.progress > maxP) maxP = r.progress;
+        continue;
+      }
+      // Wider variance so the field spreads naturally.
+      let speed = (0.03 + Math.random() * 0.08) * mult;
+      if (now < r.slowUntil)  speed *= 0.35;
+      if (now < r.boostUntil) speed *= 2.2;
+
+      // Occasional dramatic surge — odds increase the further behind a racer is,
+      // so back-of-pack racers really can zoom up the field.
+      if (now > (r.boostUntil || 0) && Math.random() < 0.0006 + Math.max(0, leaderP - r.progress) * 0.004) {
+        r.boostUntil = now + 1400 + Math.random() * 800;
+        if (racers.length <= 25) logEvent(`💨 ${r.name} surges!`, 'good');
+      }
+
+      r.progress += speed * dtSec;
+      if (r.progress > 1) r.progress = 1;
+      if (r.progress > maxP) maxP = r.progress;
+    }
+    state.maxProgress = maxP;
+  }
+
+  function spawnObstacles(dt) {
+    const mult = state.obstacleMult;
+    if (mult <= 0) { state.spawnAcc = 0; return; }
+    state.spawnAcc += dt;
+    const n = state.racers.length;
+    const baseMax = n <= 10 ? 3 : n <= 50 ? 5 : n <= 200 ? 6 : 8;
+    const max = Math.max(1, Math.round(baseMax * mult));
+    if (state.obstacles.length >= max) { state.spawnAcc = 0; return; }
+    const next = (900 + Math.random() * 600) / (mult * Math.max(0.3, state.speedMult));
+    if (state.spawnAcc < next) return;
+    state.spawnAcc = 0;
+    const roll = Math.random();
+    let type;
+    if (roll < 0.45)      type = 'asteroid';
+    else if (roll < 0.75) type = 'blackhole';
+    else if (roll < 0.85) type = 'ufo';
+    else                  type = 'fuel';
+    spawnObstacle(type);
+  }
+
+  function spawnObstacle(type) {
+    const def = OBSTACLE_TYPES[type];
+    const w = state.cachedTrackW, h = state.cachedTrackH;
+    const finishMarginRight = 150, startMarginLeft = 20;
+    const travel = w - finishMarginRight - startMarginLeft;
+    // Spawn ahead of the leader, before the finish line — that's the danger band.
+    const leadX = startMarginLeft + (state.maxProgress || 0) * travel;
+    const bandLeft = leadX + 40;
+    const bandRight = w - finishMarginRight - 20;
+    if (bandRight <= bandLeft) return;
+    const x = bandLeft + Math.random() * (bandRight - bandLeft);
+    const fromTop = Math.random() < 0.5;
+    const speed = 0.12 + Math.random() * 0.12;
+    const vy = fromTop ? speed : -speed;
+    const y = fromTop ? -40 : h + 40;
+
+    const tdef = getActiveTheme().obstacles[type];
+    const el = document.createElement('div');
+    el.className = 'obstacle ' + def.className;
+    if (tdef.kind === 'image' && tdef.value) {
+      el.classList.add('img-obstacle');
+      el.style.backgroundImage = `url("${tdef.value}")`;
+    } else {
+      el.textContent = tdef.value || '?';
+    }
+    el.style.left = x + 'px';
+    el.style.top  = y + 'px';
+    trackEl.appendChild(el);
+
+    state.obstacles.push({ id: uid(), type, x, y, vy, el, hit: new Set(), lifetime: 0 });
+  }
+
+  function updateObstacles(dt, now) {
+    const w = state.cachedTrackW, h = state.cachedTrackH;
+    const finishMarginRight = 150, startMarginLeft = 20;
+    const travel = w - finishMarginRight - startMarginLeft;
+    const n = state.racers.length;
+    const hitRadius = n > 300 ? 10 : n > 100 ? 14 : n > 25 ? 22 : 32;
+    const hitR2 = hitRadius * hitRadius;
+
+    for (let i = state.obstacles.length - 1; i >= 0; i--) {
+      const o = state.obstacles[i];
+      o.y += o.vy * dt * Math.max(0.3, state.speedMult);
+      o.lifetime += dt;
+      o.el.style.top = o.y + 'px';
+      const ox = o.x, oy = o.y;
+
+      const racers = state.racers;
+      for (let j = 0; j < racers.length; j++) {
+        const r = racers[j];
+        if (r.status !== 'racing') continue;
+        const dy = r.laneCenter - oy;
+        if (dy * dy > hitR2) continue;
+        if (o.hit.has(r.id)) continue;
+        const racerX = startMarginLeft + r.progress * travel;
+        const dx = racerX - ox;
+        if (dx * dx + dy * dy < hitR2) {
+          o.hit.add(r.id);
+          applyObstacleEffect(r, o.type, now);
+        }
+      }
+
+      const leadX = startMarginLeft + (state.maxProgress || 0) * travel;
+      if (o.y < -80 || o.y > h + 80 || o.lifetime > 20000 || leadX > ox + 30) {
+        o.el.remove();
+        state.obstacles.splice(i, 1);
+      }
+    }
+  }
+
+  function applyObstacleEffect(racer, type, now) {
+    const n = state.racers.length;
+    const verbose = n <= 20 || Math.random() < (20 / n);
+    if (type === 'asteroid') {
+      racer.status = 'ko';
+      spawnExplosion(racer);
+      if (verbose) logEvent(`💥 ${racer.name} smashed by an asteroid!`, 'bad');
+      sfx('crash');
+    } else if (type === 'ufo') {
+      racer.status = 'ko';
+      spawnExplosion(racer);
+      if (verbose) logEvent(`🛸 ${racer.name} abducted by a UFO!`, 'bad');
+      sfx('crash');
+    } else if (type === 'blackhole') {
+      racer.slowUntil = now + 3500;
+      if (verbose) logEvent(`🕳️ ${racer.name} sucked into a black hole...`, 'slow');
+      sfx('slow');
+    } else if (type === 'fuel') {
+      racer.boostUntil = now + 2500;
+      if (verbose) logEvent(`⛽ ${racer.name} grabbed a fuel boost!`, 'good');
+      sfx('boost');
+    }
+  }
+
+  /* ----- Particle system (explosions + confetti) ----- */
+  function spawnExplosion(racer) {
+    const w = state.cachedTrackW;
+    const finishMarginRight = 150, startMarginLeft = 20;
+    const travel = w - finishMarginRight - startMarginLeft;
+    const x = startMarginLeft + racer.progress * travel;
+    const y = racer.laneCenter;
+    for (let i = 0; i < 8; i++) {
+      const ang = Math.random() * Math.PI * 2;
+      const spd = 0.06 + Math.random() * 0.12;
+      state.particles.push({
+        x, y, vx: Math.cos(ang) * spd, vy: Math.sin(ang) * spd,
+        life: 600, max: 600,
+        color: '#ff7a30', size: 3 + Math.random() * 2,
+        gravity: 0, kind: 'spark',
+      });
+    }
+  }
+  function spawnConfetti() {
+    const w = state.cachedTrackW;
+    const colors = ['#ffcc33','#ff6b6b','#4ecdc4','#a78bfa','#ffd93d','#6bcf7f','#54a0ff'];
+    for (let i = 0; i < 220; i++) {
+      state.particles.push({
+        x: Math.random() * w,
+        y: -20 - Math.random() * 100,
+        vx: (Math.random() - 0.5) * 0.15,
+        vy: 0.08 + Math.random() * 0.1,
+        life: 4500, max: 4500,
+        color: colors[i % colors.length],
+        size: 4 + Math.random() * 4,
+        gravity: 0.00015,
+        rot: Math.random() * Math.PI,
+        vrot: (Math.random() - 0.5) * 0.01,
+        kind: 'confetti',
+      });
+    }
+  }
+  function updateParticles(dt) {
+    for (let i = state.particles.length - 1; i >= 0; i--) {
+      const p = state.particles[i];
+      p.vy += (p.gravity || 0) * dt;
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.life -= dt;
+      if (p.rot !== undefined) p.rot += p.vrot * dt;
+      if (p.life <= 0 || p.y > state.cachedTrackH + 30) state.particles.splice(i, 1);
+    }
+  }
+
+  /* ----- Rendering ----- */
+  function render() {
+    const w = state.cachedTrackW, h = state.cachedTrackH;
+    ctx.imageSmoothingEnabled = false;
+    ctx.clearRect(0, 0, w, h);
+    const nowT = performance.now();
+
+    const racers = state.racers;
+    const n = racers.length;
+    const finishMarginRight = 150, startMarginLeft = 20;
+    const travel = w - finishMarginRight - startMarginLeft;
+    const flameFrame = Math.floor(nowT / 110);
+    const theme = getActiveTheme();
+    const isPixelRocket = theme.racer.kind === 'pixelRocket';
+
+    // Sort by status priority, then progress. Top of the list = leaders.
+    const rk = s => s === 'won' ? 0 : s === 'qualified' ? 1 : s === 'racing' ? 2 : 3;
+    const sorted = racers.slice().sort((a, b) => {
+      const d = rk(a.status) - rk(b.status);
+      if (d !== 0) return d;
+      return b.progress - a.progress;
+    });
+
+    // Adaptive tier sizing — small races show everyone big; huge races stratify.
+    let LEADER_COUNT, SPRITE_COUNT, leaderSize, packSize;
+    if (n <= 12) {
+      LEADER_COUNT = n; SPRITE_COUNT = n;
+      leaderSize = n <= 4 ? 92 : n <= 8 ? 72 : 56;
+      packSize = leaderSize;
+    } else if (n <= 60) {
+      LEADER_COUNT = 10; SPRITE_COUNT = n;
+      leaderSize = 60; packSize = 30;
+    } else {
+      LEADER_COUNT = 10; SPRITE_COUNT = 50;
+      leaderSize = 64; packSize = 22;
+    }
+    const dotSize = n > 300 ? 4 : 6;
+
+    // Draw back-to-front so leaders end up on top of the dot pack.
+    for (let rank = sorted.length - 1; rank >= 0; rank--) {
+      const r = sorted[rank];
+      const isLeader  = rank < LEADER_COUNT;
+      const isSprite  = rank < SPRITE_COUNT;
+      const size = isLeader ? leaderSize : packSize;
+      const x = startMarginLeft + r.progress * travel;  // horizontal progress
+      const y = r.laneCenter;                            // vertical lane position
+      const isKO  = r.status === 'ko';
+      const isWin = r.status === 'won';
+      const boosted = !isKO && nowT < r.boostUntil;
+      const slowed  = !isKO && nowT < r.slowUntil;
+
+      if (!isSprite) {
+        // Back-of-pack: just a colored dot. Cheap to draw 500+ of these.
+        ctx.globalAlpha = isKO ? 0.25 : 0.9;
+        ctx.fillStyle = r.color;
+        ctx.fillRect(Math.round(x - dotSize / 2), Math.round(y - dotSize / 2), dotSize, dotSize);
+        continue;
+      }
+
+      const visual = getRacerVisual(r, theme);
+      const aspect = visual.aspect || 1;
+      // For pixelRocket we rotate the sprite 90° CW so the nose faces right.
+      // Sprite's native drawW/drawH swap roles on screen: screenW = drawH, screenH = drawW.
+      let drawH = size;
+      let drawW = size * aspect;
+      if (isWin) { const k = 1.1 + 0.18 * Math.sin(nowT / 80); drawW *= k; drawH *= k; }
+      const screenW = isPixelRocket ? drawH : drawW;
+      const screenH = isPixelRocket ? drawW : drawH;
+
+      // Idle wobble for non-rocket themes (no flame to convey state)
+      let dx = 0;
+      if (!isPixelRocket && !isKO && isLeader) {
+        if (boosted) dx = Math.abs(Math.sin(nowT / 60)) * size * 0.18;
+        else if (slowed) dx = Math.sin(nowT / 240) * size * 0.06;
+      }
+
+      // Flame trails behind the rocket (to the LEFT, since it moves right).
+      if (!isKO && isPixelRocket && isLeader) {
+        const mode = boosted ? 'boost' : slowed ? 'slow' : 'normal';
+        const flameScale = boosted ? 1.4 : slowed ? 0.7 : 1;
+        ctx.globalAlpha = 0.95;
+        ctx.save();
+        ctx.translate(x - screenW / 2 + 1, y);
+        ctx.rotate(-Math.PI / 2);  // drawFlame's "down" → screen-left
+        drawFlame(ctx, 0, 0, size * flameScale, flameFrame, mode);
+        ctx.restore();
+      }
+
+      // Racer sprite
+      ctx.globalAlpha = isKO ? 0.4 : 1;
+      if (isPixelRocket) {
+        ctx.save();
+        ctx.translate(x + dx, y);
+        ctx.rotate(Math.PI / 2);  // 90° CW → nose points right
+        ctx.drawImage(visual.sprite, -drawH / 2, -drawW / 2, drawH, drawW);
+        ctx.restore();
+      } else if (theme.racer.kind === 'emoji') {
+        // Most emoji (🐎 🏎️ 🐕 etc) face left by default — mirror so they face the finish.
+        ctx.save();
+        ctx.translate(x + dx, y);
+        ctx.scale(-1, 1);
+        ctx.drawImage(visual.sprite, -drawW / 2, -drawH / 2, drawW, drawH);
+        ctx.restore();
+      } else {
+        ctx.drawImage(visual.sprite, x - drawW / 2 + dx, y - drawH / 2, drawW, drawH);
+      }
+
+      // Name overlay (uses on-screen dimensions, not sprite-native).
+      if (isLeader && !isKO && screenW >= 28) {
+        drawNameOnRacer(ctx, x + dx, y, screenW, screenH, r);
+      }
+    }
+    ctx.globalAlpha = 1;
+
+    // Particles
+    const parts = state.particles;
+    for (let i = 0; i < parts.length; i++) {
+      const p = parts[i];
+      const a = Math.max(0, p.life / p.max);
+      ctx.globalAlpha = a;
+      ctx.fillStyle = p.color;
+      if (p.kind === 'confetti') {
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.fillRect(-p.size/2, -p.size/4, p.size, p.size/2);
+        ctx.restore();
+      } else {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function updateSpecHud() {
+    if (!specHud || !state.racers.length) { if (specHud) specHud.classList.remove('show'); return; }
+    const rank = s => s === 'won' ? 0 : s === 'qualified' ? 1 : s === 'racing' ? 2 : 3;
+    const ranked = [...state.racers].sort((a, b) => {
+      const d = rank(a.status) - rank(b.status);
+      if (d !== 0) return d;
+      return b.progress - a.progress;
+    });
+
+    // Leader card
+    const leader = ranked[0];
+    const runnerUp = ranked.find((r, i) => i > 0 && r.status !== 'ko');
+    if (leader) {
+      hudLeaderAvatar.textContent = leader.avatar || '🚀';
+      hudLeaderName.textContent = leader.name;
+      hudLeaderName.style.color = leader.color;
+      hudLeaderPct.textContent = Math.round(leader.progress * 100) + '%';
+      if (runnerUp) {
+        const gapPct = (leader.progress - runnerUp.progress) * 100;
+        hudLeaderGap.textContent = gapPct > 0.05 ? `+${gapPct.toFixed(1)}%` : 'tied';
+      } else {
+        hudLeaderGap.textContent = '—';
+      }
+    }
+
+    // Positions (top 8)
+    const top = ranked.slice(0, 8);
+    hudPositions.innerHTML = top.map((r, i) => {
+      const dead = r.status === 'ko' ? ' dead' : '';
+      const marker = r.status === 'won' ? '👑'
+                   : r.status === 'qualified' ? '🏁'
+                   : r.status === 'ko' ? '💀'
+                   : `${i + 1}.`;
+      return `<div class="hud-pos-row${dead}">
+        <span class="rank">${marker}</span>
+        <span class="avatar">${r.avatar || '🚀'}</span>
+        <span class="name" style="color:${r.color}">${escapeHtml(r.name)}</span>
+        <span class="pct">${Math.round(r.progress * 100)}%</span>
+      </div>`;
+    }).join('');
+  }
+
+  /* ----- Finish handling ----- */
+  function checkWinner() {
+    const t = state.tournament;
+    const inHeat1 = t && t.round === 1 && t.finalistsCount > 1;
+
+    if (inHeat1) {
+      // Multi-finisher mode: collect top N qualifiers across the heat
+      for (const r of state.racers) {
+        if (r.progress >= 1 && r.status === 'racing') {
+          r.status = 'qualified';
+          t.qualifiers.push(r.name);
+          const placed = t.qualifiers.length;
+          logEvent(`🏁 ${r.name} qualifies (${placed}/${t.finalistsCount})`, 'good');
+          if (placed === 1) { sfx('win'); spawnConfetti(); }
+          else sfx('go');
+        }
+      }
+      const stillRacing = state.racers.filter(r => r.status === 'racing').length;
+      if (t.qualifiers.length >= t.finalistsCount || stillRacing === 0) {
+        // Backfill remaining slots from highest-progress non-qualifiers
+        if (t.qualifiers.length < t.finalistsCount) {
+          const taken = new Set(t.qualifiers);
+          const need = t.finalistsCount - t.qualifiers.length;
+          const fill = state.racers
+            .filter(r => !taken.has(r.name))
+            .sort((a, b) => {
+              if (a.status === 'ko' && b.status !== 'ko') return 1;
+              if (b.status === 'ko' && a.status !== 'ko') return -1;
+              return b.progress - a.progress;
+            })
+            .slice(0, need);
+          fill.forEach(r => {
+            t.qualifiers.push(r.name);
+            if (r.status === 'racing') r.status = 'qualified';
+          });
+        }
+        t.qualifiers = t.qualifiers.slice(0, t.finalistsCount);
+        state.isRunning = false;
+        state.isFinished = true;
+        cancelAnimationFrame(state.rafId);
+        state.rafId = null;
+        onHeat1Finished();
+      }
+      return;
+    }
+
+    const racing = state.racers.filter(r => r.status === 'racing');
+    const finished = state.racers.filter(r => r.progress >= 1 && r.status === 'racing');
+
+    if (finished.length > 0) {
+      const w = finished[0];
+      w.status = 'won';
+      state.isRunning = false;
+      state.isFinished = true;
+      cancelAnimationFrame(state.rafId);
+      state.rafId = null;
+      onRaceFinished(w);
+      return;
+    }
+    if (racing.length === 0) {
+      state.isRunning = false;
+      state.isFinished = true;
+      cancelAnimationFrame(state.rafId);
+      state.rafId = null;
+      onRaceFinished(null);
+    }
+  }
+
+  function onHeat1Finished() {
+    const t = state.tournament;
+    if (!t) return;
+    keepRenderingFor(2500);
+    const list = t.qualifiers
+      .map((n, i) => `<div style="padding:2px 0;">${i + 1}. ${escapeHtml(n)}</div>`)
+      .join('');
+    const html = `
+      <div class="title">🏁 Heat 1 Complete</div>
+      <div style="font-size:14px;color:#aaa;margin-top:6px;">Top ${t.finalistsCount} advance to the Final</div>
+      <div style="margin:10px 0;font-size:14px;display:inline-block;text-align:left;">${list}</div>
+      <div class="btn-row">
+        <button id="continue-btn">Run Final ▶</button>
+        <button id="abort-btn" class="secondary">Stop Tournament</button>
+      </div>
+    `;
+    showBanner(html);
+    document.getElementById('continue-btn').onclick = () => {
+      hideBanner();
+      t.round = 2;
+      tournamentStatus.textContent = `🏆 Final — ${t.finalistsCount} racers`;
+      tournamentStatus.classList.add('show');
+      setActiveRoster(t.qualifiers);
+      runRaceFlow(true);
+    };
+    document.getElementById('abort-btn').onclick = () => {
+      hideBanner();
+      state.tournament = null;
+      tournamentStatus.classList.remove('show');
+      setActiveRoster(getStoredNames());
+    };
+  }
+
+  function onRaceFinished(winner) {
+    if (winner) {
+      sfx('win');
+      spawnConfetti();
+      // Keep rendering for confetti/winner pulse
+      keepRenderingFor(5000);
+      logEvent(`🏆 ${winner.name} reached the moon!`, 'win');
+    } else {
+      logEvent('All racers knocked out!', 'bad');
+    }
+
+    if (state.tournament) {
+      advanceTournament(winner);
+    } else {
+      showFinalPodium(winner);
+    }
+  }
+
+  function keepRenderingFor(ms) {
+    const start = performance.now();
+    let prev = start;
+    function loop(now) {
+      const dt = Math.min(64, now - prev);
+      prev = now;
+      updateParticles(dt);
+      render();
+      if (now - start < ms) requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+  }
+
+  function showFinalPodium(winner) {
+    const ranked = [...state.racers].sort((a, b) => {
+      if (a.status === 'won' && b.status !== 'won') return -1;
+      if (b.status === 'won' && a.status !== 'won') return 1;
+      if (a.status === 'ko'  && b.status !== 'ko')  return 1;
+      if (b.status === 'ko'  && a.status !== 'ko')  return -1;
+      return b.progress - a.progress;
+    });
+    const top3 = ranked.slice(0, 3);
+    const podium = `
+      <div class="title">${winner ? '🏆 WINNER!' : '💀 GAME OVER'}</div>
+      <div class="winner-name">${winner ? escapeHtml(winner.name) : 'No survivors'}</div>
+      <div class="podium">
+        ${top3[1] ? `<div class="podium-spot silver"><div class="rank">🥈</div><div class="pname">${escapeHtml(top3[1].name)}</div></div>` : ''}
+        ${top3[0] ? `<div class="podium-spot gold"><div class="rank">🥇</div><div class="pname">${escapeHtml(top3[0].name)}</div></div>` : ''}
+        ${top3[2] ? `<div class="podium-spot bronze"><div class="rank">🥉</div><div class="pname">${escapeHtml(top3[2].name)}</div></div>` : ''}
+      </div>
+      <div class="btn-row">
+        <button id="race-again-btn">Race Again</button>
+        <button id="close-banner-btn" class="secondary">Close</button>
+      </div>
+    `;
+    showBanner(podium);
+    document.getElementById('race-again-btn').onclick = raceAgain;
+    document.getElementById('close-banner-btn').onclick = () => { hideBanner(); renderRacersList(); };
+  }
+
+  function getStoredNames() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return [];
+      const data = JSON.parse(raw);
+      return Array.isArray(data.names) ? data.names : [];
+    } catch (e) { return []; }
+  }
+
+  function raceAgain() {
+    hideBanner();
+    const names = getStoredNames();
+    if (!names.length) { renderRacersList(); return; }
+    setActiveRoster(names);
+    if (tournamentToggle.checked) startTournament();
+    else runRaceFlow(false);
+  }
+
+  /* ----- Tournament (2 heats: everyone → top N finalists → champion) ----- */
+  function startTournament() {
+    const finalistsCount = Math.max(2, Math.min(64, parseInt(heatSizeInput.value, 10) || 4));
+    const allNames = state.racers.map(r => r.name);
+    if (allNames.length <= finalistsCount) {
+      // Not enough racers for a meaningful 2-heat bracket — just run a single race
+      runRaceFlow(false);
+      return;
+    }
+    state.tournament = {
+      round: 1,
+      finalistsCount,
+      allNames,
+      qualifiers: [],
+    };
+    tournamentStatus.textContent = `Heat 1 of 2 — Top ${finalistsCount} advance`;
+    tournamentStatus.classList.add('show');
+    setActiveRoster(allNames);
+    runRaceFlow(true);
+  }
+
+  function advanceTournament(winner) {
+    // Only reached from the Final (Heat 2) — single winner crowns the champion.
+    tournamentStatus.classList.remove('show');
+    showFinalPodium(winner);
+    state.tournament = null;
+  }
+
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  /* ----- Wiring ----- */
+  addBtn.addEventListener('click', () => { addRacer(nameInput.value); nameInput.value = ''; nameInput.focus(); });
+  nameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { addRacer(nameInput.value); nameInput.value = ''; } });
+  racersListEl.addEventListener('click', (e) => {
+    if (e.target.classList.contains('remove')) removeRacer(e.target.dataset.id);
+  });
+  startBtn.addEventListener('click', startRace);
+  resetBtn.addEventListener('click', resetRace);
+  clearAllBtn.addEventListener('click', clearAllRacers);
+  bulkAddBtn.addEventListener('click', bulkAdd);
+  bulkClearBtn.addEventListener('click', () => { bulkTextarea.value = ''; updateBulkCount(); });
+  bulkTextarea.addEventListener('input', updateBulkCount);
+  bulkTextarea.addEventListener('paste', () => setTimeout(updateBulkCount, 0));
+
+  pauseBtn.addEventListener('click', togglePause);
+  muteBtn.addEventListener('click', () => {
+    state.soundOn = !state.soundOn;
+    soundToggle.checked = state.soundOn;
+    muteBtn.textContent = state.soundOn ? '\u{1F50A}' : '\u{1F507}';
+    persist();
+  });
+  soundToggle.addEventListener('change', () => {
+    state.soundOn = soundToggle.checked;
+    muteBtn.textContent = state.soundOn ? '\u{1F50A}' : '\u{1F507}';
+    persist();
+  });
+
+  speedSlider.addEventListener('input', () => {
+    state.speedMult = parseFloat(speedSlider.value);
+    speedValue.textContent = state.speedMult.toFixed(1) + 'x';
+    persist();
+  });
+  obstacleSlider.addEventListener('input', () => {
+    state.obstacleMult = parseFloat(obstacleSlider.value);
+    obstacleValue.textContent = state.obstacleMult <= 0 ? 'Off' : state.obstacleMult.toFixed(2).replace(/\.?0+$/, '') + 'x';
+    persist();
+  });
+  tournamentToggle.addEventListener('change', () => {
+    heatRow.style.display = tournamentToggle.checked ? '' : 'none';
+    persist();
+  });
+  heatSizeInput.addEventListener('change', persist);
+  themeSelect.addEventListener('change', () => {
+    state.themeId = themeSelect.value;
+    emojiSpriteCache.clear();
+    applyTheme();
+    persist();
+  });
+
+  // Keyboard
+  document.addEventListener('keydown', (e) => {
+    if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) return;
+    if (e.code === 'Space') { e.preventDefault(); if (state.isRunning) togglePause(); else if (!startBtn.disabled) startRace(); }
+    if (e.code === 'KeyM') muteBtn.click();
+    if (e.code === 'KeyR') resetRace();
+  });
+
+  /* ----- Init ----- */
+  // Clear any stale inline positioning from earlier render modes.
+  const _moonEl = document.getElementById('moon-canvas');
+  const _finishEl = document.querySelector('.finish-line');
+  if (_moonEl)   _moonEl.style.top = '';
+  if (_finishEl) _finishEl.style.top = '';
+  sizeCanvas();
+  restore();
+  applyTheme(); // paints finish, renders legend, syncs dropdown + editor
+  if (state.racers.length === 0) {
+    addRacer('Alice'); addRacer('Bob'); addRacer('Charlie');
+  } else {
+    renderRacersList();
+  }
+  updateBulkCount();
+})();
+</script>
+</body>
+</html>
