@@ -414,6 +414,15 @@ h2.section .note {
 }
 .gamecard .play:hover, .gamecard .play:focus-visible { background: #FFD976; transform: translateY(-1px); }
 .gamecard .price { color: var(--dim); font-size: 13.5px; margin-left: 12px; }
+/* A game awaiting Play review has no link to give. It must not look like the gold
+   button — a button that doesn't click reads as a broken page, not as "not yet". */
+.gamecard .play.soon {
+  background: transparent;
+  color: var(--dim);
+  border: 1px dashed var(--border);
+  cursor: default;
+}
+.gamecard .play.soon:hover { background: transparent; transform: none; }
 
 /* ---------- side-bet index ---------- */
 .tablewrap { overflow-x: auto; margin: 0 0 20px; }
