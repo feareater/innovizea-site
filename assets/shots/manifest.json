@@ -1,0 +1,184 @@
+{
+  "cardshark21": [
+    {
+      "file": "cardshark21-1.webp",
+      "caption": "The table"
+    },
+    {
+      "file": "cardshark21-2.webp",
+      "caption": "21+3 and Perfect Pairs"
+    },
+    {
+      "file": "cardshark21-3.webp",
+      "caption": "The strategy trainer"
+    }
+  ],
+  "videopoker": [
+    {
+      "file": "videopoker-1.webp",
+      "caption": "Hold and draw"
+    },
+    {
+      "file": "videopoker-2.webp",
+      "caption": "The credit meter"
+    },
+    {
+      "file": "videopoker-3.webp",
+      "caption": "The optimal-hold trainer"
+    }
+  ],
+  "baccarat": [
+    {
+      "file": "baccarat-1.webp",
+      "caption": "Player, Banker or Tie"
+    },
+    {
+      "file": "baccarat-2.webp",
+      "caption": "Dragon, Panda and the pairs"
+    },
+    {
+      "file": "baccarat-3.webp",
+      "caption": "EZ and no-commission variants"
+    }
+  ],
+  "uth": [
+    {
+      "file": "uth-1.webp",
+      "caption": "Ante, Blind and Play"
+    },
+    {
+      "file": "uth-2.webp",
+      "caption": "Trips, Bad Beat, Pocket, Ultimate Pair"
+    },
+    {
+      "file": "uth-3.webp",
+      "caption": "The decision trainer"
+    }
+  ],
+  "3cp": [
+    {
+      "file": "3cp-1.webp",
+      "caption": "Play or fold"
+    },
+    {
+      "file": "3cp-2.webp",
+      "caption": "Pair Plus, Prime, 6-Card Bonus"
+    },
+    {
+      "file": "3cp-3.webp",
+      "caption": "The Q-6-4 rule, taught"
+    }
+  ],
+  "mississippi": [
+    {
+      "file": "mississippi-1.webp",
+      "caption": "Three betting streets"
+    },
+    {
+      "file": "mississippi-2.webp",
+      "caption": "3-Card Bonus and the progressive"
+    },
+    {
+      "file": "mississippi-3.webp",
+      "caption": "The point-count trainer"
+    }
+  ],
+  "paigow": [
+    {
+      "file": "paigow-1.webp",
+      "caption": "Set your seven cards"
+    },
+    {
+      "file": "paigow-2.webp",
+      "caption": "Fortune Bonus and the progressive"
+    },
+    {
+      "file": "paigow-3.webp",
+      "caption": "The house-way trainer"
+    }
+  ],
+  "letitride": [
+    {
+      "file": "letitride-1.webp",
+      "caption": "Pull it back, or let it ride"
+    },
+    {
+      "file": "letitride-2.webp",
+      "caption": "3 Card and 5 Card Bonus"
+    },
+    {
+      "file": "letitride-3.webp",
+      "caption": "The two-decision trainer"
+    }
+  ],
+  "caribbean": [
+    {
+      "file": "caribbean-1.webp",
+      "caption": "Raise or fold"
+    },
+    {
+      "file": "caribbean-2.webp",
+      "caption": "5+1 Bonus and the Jackpot"
+    },
+    {
+      "file": "caribbean-3.webp",
+      "caption": "The raise/fold trainer"
+    }
+  ],
+  "crisscross": [
+    {
+      "file": "crisscross-1.webp",
+      "caption": "Across, Down and Middle"
+    },
+    {
+      "file": "crisscross-2.webp",
+      "caption": "The Five Card Bonus"
+    },
+    {
+      "file": "crisscross-3.webp",
+      "caption": "The Middle-bet trainer"
+    }
+  ],
+  "djwild": [
+    {
+      "file": "djwild-1.webp",
+      "caption": "Five wilds in the deck"
+    },
+    {
+      "file": "djwild-2.webp",
+      "caption": "The Trips bet"
+    },
+    {
+      "file": "djwild-3.webp",
+      "caption": "The fold/raise trainer"
+    }
+  ],
+  "iluvsuits": [
+    {
+      "file": "iluvsuits-1.webp",
+      "caption": "Longest flush wins"
+    },
+    {
+      "file": "iluvsuits-2.webp",
+      "caption": "Flush Rush and Super Flush Rush"
+    },
+    {
+      "file": "iluvsuits-3.webp",
+      "caption": "Raise size follows flush length"
+    }
+  ],
+  "war": [
+    {
+      "file": "war-1.webp",
+      "caption": "High card wins"
+    },
+    {
+      "file": "war-2.webp",
+      "caption": "The Tie bet"
+    },
+    {
+      "file": "war-3.webp",
+      "caption": "Go to war, or surrender"
+    }
+  ]
+}

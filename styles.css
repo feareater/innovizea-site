@@ -322,6 +322,120 @@ h2.section .note {
 .game .name { display: block; font-weight: 800; font-size: 15px; margin-bottom: 3px; }
 .game .tag { display: block; color: var(--dim); font-size: 13.5px; line-height: 1.45; }
 
+/* ---------- game detail cards (games.html) ---------- */
+/* The compact .games grid above is the index; these are the per-game write-ups it
+   jumps to. Each carries three real screenshots straight off the Play listing —
+   downscaled by tools/build-shots.mjs, never hand-exported. */
+.gamecard {
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--panel);
+  padding: 20px;
+  margin: 0 0 16px;
+  scroll-margin-top: 20px;
+}
+.gamecard .head { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+.gamecard .head img {
+  width: 58px;
+  height: 58px;
+  border-radius: 14px;
+  flex: 0 0 auto;
+  background: rgba(0, 0, 0, .3);
+}
+.gamecard h3 { margin: 0; font-size: 19px; font-weight: 800; letter-spacing: -0.2px; }
+.gamecard .sub {
+  display: block;
+  color: var(--cs-accent);
+  font-size: 11px;
+  letter-spacing: 1.3px;
+  text-transform: uppercase;
+  font-weight: 800;
+  margin-bottom: 3px;
+}
+.gamecard > p { color: var(--dim); font-size: 15px; margin: 0 0 14px; max-width: 72ch; }
+.gamecard .facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+  gap: 10px;
+  margin: 0 0 16px;
+  padding: 0;
+  list-style: none;
+}
+.gamecard .facts li {
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  background: rgba(0, 0, 0, .18);
+  padding: 10px 13px;
+  font-size: 13.5px;
+  color: var(--dim);
+  line-height: 1.5;
+}
+.gamecard .facts b {
+  display: block;
+  font-size: 10.5px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--cs-accent);
+  font-weight: 800;
+  margin-bottom: 2px;
+}
+/* Screenshots scroll sideways on a phone rather than shrinking to thumbnails.
+   The scroller — not the page — takes the overflow. */
+.shots {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  margin: 0 0 16px;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+}
+.shots figure { margin: 0; flex: 0 0 auto; width: 200px; scroll-snap-align: start; }
+.shots img {
+  width: 200px;
+  height: auto;
+  display: block;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(0, 0, 0, .3);
+}
+.shots figcaption { color: var(--dim); font-size: 12px; margin-top: 6px; line-height: 1.4; }
+.gamecard .play {
+  display: inline-block;
+  padding: 9px 17px;
+  border-radius: 9px;
+  background: var(--cs-accent);
+  color: #14140a;
+  font-weight: 800;
+  font-size: 14px;
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: background .16s ease, transform .16s ease;
+}
+.gamecard .play:hover, .gamecard .play:focus-visible { background: #FFD976; transform: translateY(-1px); }
+.gamecard .price { color: var(--dim); font-size: 13.5px; margin-left: 12px; }
+
+/* ---------- side-bet index ---------- */
+.tablewrap { overflow-x: auto; margin: 0 0 20px; }
+table.grid { border-collapse: collapse; width: 100%; min-width: 620px; font-size: 14px; }
+table.grid th, table.grid td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+table.grid th {
+  font-size: 11px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--cs-accent);
+  font-weight: 800;
+  white-space: nowrap;
+}
+table.grid td { color: var(--dim); }
+table.grid td:first-child { color: var(--text); font-weight: 700; white-space: nowrap; }
+table.grid tr:last-child td { border-bottom: 0; }
+
 /* ---------- prose (privacy / support) ---------- */
 .prose { max-width: 760px; margin: 0 auto; padding: 8px 0 20px; }
 .prose h1 { font-size: clamp(26px, 5vw, 36px); margin: 24px 0 6px; font-weight: 900; }
@@ -360,5 +474,5 @@ footer a:hover { color: var(--text); text-decoration: underline; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   * { transition: none !important; }
-  .product:hover, .game a:hover, .cta:hover { transform: none; }
+  .product:hover, .game a:hover, .cta:hover, .gamecard .play:hover { transform: none; }
 }

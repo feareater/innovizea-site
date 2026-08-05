@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Card Shark — the card-game family by Innovizea LLC</title>
-<meta name="description" content="The Card Shark family: thirteen free casino card games for Android, each with a built-in strategy trainer. Virtual chips only — no real-money gambling.">
+<title>Card Shark — thirteen casino card games with a strategy trainer</title>
+<meta name="description" content="The Card Shark family: thirteen free casino card games for Android — every table game's real side bets, and a strategy trainer that grades every decision. Virtual chips only; no real-money gambling.">
 <link rel="stylesheet" href="styles.css">
 <link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <meta property="og:title" content="Card Shark — thirteen card games with a strategy trainer">
-<meta property="og:description" content="Thirteen free casino card games for Android, each with a built-in strategy trainer.">
+<meta property="og:description" content="Thirteen free casino card games for Android. Every real side bet, and a trainer that tells you why the right play is right.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://innovizea.com/games.html">
 </head>
@@ -32,86 +32,442 @@
     <h1>Learn the game before you <span class="accent" style="color:var(--cs-accent)">sit down</span>.</h1>
     <p>
       <strong>Card Shark</strong> is thirteen casino card games for Android. Every one is
-      free to play, and every one ships with a strategy trainer that grades your decisions
-      and explains <em>why</em> the correct play is correct — graded against the same engine
-      the table itself plays by, so the coaching can never disagree with the game.
+      free to play. Every one carries the real side bets you actually see on a felt — with
+      the real paytables and, where it matters, the real house edge printed next to them.
+      And every one ships with a strategy trainer that grades your decisions and explains
+      <em>why</em> the correct play is correct, graded against the same engine the table
+      itself plays by, so the coaching can never disagree with the game.
     </p>
     <div class="badges">
       <span class="badge"><strong>13</strong> games</span>
+      <span class="badge"><strong>30+</strong> side bets</span>
       <span class="badge">Free to play</span>
       <span class="badge">Virtual chips only</span>
       <span class="badge">No real-money gambling</span>
     </div>
   </section>
 
-  <h2 class="section" id="games">The Card Shark family</h2>
+  <h2 class="section" id="games">The Card Shark family <span class="note">tap a game to jump to it</span></h2>
   <ul class="games">
-    <!-- Order: flagship first, then by how well known the game is. -->
-    <li class="game"><a href="https://play.google.com/store/apps/details?id=com.innovizea.cardshark21">
+    <!-- Order: flagship first, then by how well known the game is.
+         These jump to the write-up below; the Play link lives on each write-up. -->
+    <li class="game"><a href="#cardshark21">
       <img src="assets/icons/cardshark21.webp" alt="" width="62" height="62" loading="lazy">
       <span class="meta"><span class="name">Card Shark 21</span>
       <span class="tag">Blackjack, plus a card-counting and basic-strategy trainer</span></span></a></li>
 
-    <li class="game"><a href="https://play.google.com/store/apps/details?id=com.innovizea.cardsharkpoker">
+    <li class="game"><a href="#videopoker">
       <img src="assets/icons/videopoker.webp" alt="" width="62" height="62" loading="lazy">
       <span class="meta"><span class="name">Card Shark Poker</span>
       <span class="tag">Six video-poker variants and an optimal-hold trainer</span></span></a></li>
 
-    <li class="game"><a href="https://play.google.com/store/apps/details?id=com.innovizea.cardsharkbaccarat">
+    <li class="game"><a href="#baccarat">
       <img src="assets/icons/baccarat.webp" alt="" width="62" height="62" loading="lazy">
       <span class="meta"><span class="name">Card Shark Baccarat</span>
       <span class="tag">Player, Banker or Tie — with the third-card rule drill</span></span></a></li>
 
-    <li class="game"><a href="https://play.google.com/store/apps/details?id=com.innovizea.cardsharkuth">
+    <li class="game"><a href="#uth">
       <img src="assets/icons/uth.webp" alt="" width="62" height="62" loading="lazy">
       <span class="meta"><span class="name">Card Shark Ultimate Hold'em</span>
       <span class="tag">Ante, Blind and Play betting, plus a decision trainer</span></span></a></li>
 
-    <li class="game"><a href="https://play.google.com/store/apps/details?id=com.innovizea.cardshark3cp">
+    <li class="game"><a href="#3cp">
       <img src="assets/icons/3cp.webp" alt="" width="62" height="62" loading="lazy">
       <span class="meta"><span class="name">Card Shark 3 Card Poker</span>
       <span class="tag">Play or fold, with Pair Plus — and the Q-6-4 rule taught</span></span></a></li>
 
-    <li class="game"><a href="https://play.google.com/store/apps/details?id=com.innovizea.mississippistud">
+    <li class="game"><a href="#mississippi">
       <img src="assets/icons/mississippi.webp" alt="" width="62" height="62" loading="lazy">
       <span class="meta"><span class="name">Card Shark Mississippi Stud</span>
       <span class="tag">Three betting streets and a full point-count trainer</span></span></a></li>
 
-    <li class="game"><a href="https://play.google.com/store/apps/details?id=com.innovizea.cardsharkpaigow">
+    <li class="game"><a href="#paigow">
       <img src="assets/icons/paigow.webp" alt="" width="62" height="62" loading="lazy">
       <span class="meta"><span class="name">Card Shark Pai Gow Poker</span>
       <span class="tag">Set your own hand, or learn the house way</span></span></a></li>
 
-    <li class="game"><a href="https://play.google.com/store/apps/details?id=com.innovizea.cardsharkletitride">
+    <li class="game"><a href="#letitride">
       <img src="assets/icons/letitride.webp" alt="" width="62" height="62" loading="lazy">
       <span class="meta"><span class="name">Card Shark Let It Ride</span>
       <span class="tag">Two decisions: pull the bet back, or let it ride</span></span></a></li>
 
-    <li class="game"><a href="https://play.google.com/store/apps/details?id=com.innovizea.cardsharkcaribbean">
+    <li class="game"><a href="#caribbean">
       <img src="assets/icons/caribbean.webp" alt="" width="62" height="62" loading="lazy">
       <span class="meta"><span class="name">Card Shark Caribbean Stud</span>
       <span class="tag">Raise or fold against the dealer's up card</span></span></a></li>
 
-    <li class="game"><a href="https://play.google.com/store/apps/details?id=com.innovizea.cardsharkcrisscross">
+    <li class="game"><a href="#crisscross">
       <img src="assets/icons/crisscross.webp" alt="" width="62" height="62" loading="lazy">
       <span class="meta"><span class="name">Card Shark Criss Cross Poker</span>
       <span class="tag">Across, Down and Middle — three bets, one cross</span></span></a></li>
 
-    <li class="game"><a href="https://play.google.com/store/apps/details?id=com.innovizea.cardsharkdjwild">
+    <li class="game"><a href="#djwild">
       <img src="assets/icons/djwild.webp" alt="" width="62" height="62" loading="lazy">
       <span class="meta"><span class="name">Card Shark DJ Wild</span>
       <span class="tag">Wild stud — every deuce and the joker play wild</span></span></a></li>
 
-    <li class="game"><a href="https://play.google.com/store/apps/details?id=com.innovizea.cardsharkiluvsuits">
+    <li class="game"><a href="#iluvsuits">
       <img src="assets/icons/iluvsuits.webp" alt="" width="62" height="62" loading="lazy">
       <span class="meta"><span class="name">Card Shark I Luv Suits</span>
       <span class="tag">Forget rank — build the longest flush you can</span></span></a></li>
 
-    <li class="game"><a href="https://play.google.com/store/apps/details?id=com.innovizea.cardsharkwar">
+    <li class="game"><a href="#war">
       <img src="assets/icons/war.webp" alt="" width="62" height="62" loading="lazy">
       <span class="meta"><span class="name">Card Shark War</span>
       <span class="tag">High card wins. Tie? Go to war.</span></span></a></li>
   </ul>
+
+  <h2 class="section">Every game, in detail</h2>
+
+  <!-- Deep-trainer titles ------------------------------------------------- -->
+
+  <section class="gamecard" id="cardshark21">
+    <div class="head">
+      <img src="assets/icons/cardshark21.webp" alt="" width="58" height="58" loading="lazy">
+      <div><span class="sub">Blackjack · the flagship</span><h3>Card Shark 21</h3></div>
+    </div>
+    <p>
+      First-person blackjack on a full Vegas table, with two trainers behind it: basic
+      strategy on every hand, and a running-count trainer with a live count readout so you
+      can check yourself mid-shoe. Split, double, insurance — the trainer has an opinion on
+      all of it, and tells you which card in the dealer's window drove the answer.
+    </p>
+    <ul class="facts">
+      <li><b>Decisions per hand</b>Several — hit, stand, double, split, insurance</li>
+      <li><b>Side bets, free</b>21+3 · Perfect Pairs</li>
+      <li><b>Pro adds</b>Every rule variant, the remaining side bets, all betting systems, and counting deviations</li>
+    </ul>
+    <div class="shots">
+      <figure><img src="assets/shots/cardshark21-1.webp" alt="The Card Shark 21 blackjack table" width="200" loading="lazy"><figcaption>The table</figcaption></figure>
+      <figure><img src="assets/shots/cardshark21-2.webp" alt="21+3 and Perfect Pairs side bets with paytables" width="200" loading="lazy">
+        <figcaption>21+3 and Perfect Pairs, with paytables</figcaption></figure>
+      <figure><img src="assets/shots/cardshark21-3.webp" alt="The basic-strategy trainer grading a decision" width="200" loading="lazy"><figcaption>The strategy trainer</figcaption></figure>
+    </div>
+    <a class="play" href="https://play.google.com/store/apps/details?id=com.innovizea.cardshark21">Get it on Google Play</a>
+    <span class="price">Free · Pro $5.99</span>
+  </section>
+
+  <section class="gamecard" id="videopoker">
+    <div class="head">
+      <img src="assets/icons/videopoker.webp" alt="" width="58" height="58" loading="lazy">
+      <div><span class="sub">Video poker</span><h3>Card Shark Poker</h3></div>
+    </div>
+    <p>
+      Six full-pay video poker games on a proper credit meter — one to five coins, royal at
+      4000. The hold trainer works on every one of them: it marks the optimal hold before
+      you draw, and the Weak-Spot report tells you which hand types you keep misplaying.
+    </p>
+    <ul class="facts">
+      <li><b>Decisions per hand</b>One — which of the five to hold</li>
+      <li><b>Free</b>Jacks or Better, plus the hold trainer on <em>all six</em> games</li>
+      <li><b>Pro adds</b>Bonus · Double Bonus · Double Double Bonus · Deuces Wild · Joker Poker, and the Weak-Spot report</li>
+    </ul>
+    <div class="shots">
+      <figure><img src="assets/shots/videopoker-1.webp" alt="A video poker hand mid-draw" width="200" loading="lazy"><figcaption>Hold and draw</figcaption></figure>
+      <figure><img src="assets/shots/videopoker-2.webp" alt="The coin and credit meter" width="200" loading="lazy"><figcaption>The credit meter</figcaption></figure>
+      <figure><img src="assets/shots/videopoker-3.webp" alt="The optimal-hold trainer" width="200" loading="lazy"><figcaption>The optimal-hold trainer</figcaption></figure>
+    </div>
+    <a class="play" href="https://play.google.com/store/apps/details?id=com.innovizea.cardsharkpoker">Get it on Google Play</a>
+    <span class="price">Free · Pro $5.99</span>
+  </section>
+
+  <section class="gamecard" id="baccarat">
+    <div class="head">
+      <img src="assets/icons/baccarat.webp" alt="" width="58" height="58" loading="lazy">
+      <div><span class="sub">Punto Banco</span><h3>Card Shark Baccarat</h3></div>
+    </div>
+    <p>
+      Player, Banker or Tie, with a live Big Road and Bead Plate down the side for anyone who
+      tracks the shoe. The trainer here is a third-card-rule drill — the one part of baccarat
+      most players never actually learn, because the dealer always does it for them.
+    </p>
+    <ul class="facts">
+      <li><b>Decisions per hand</b>One — where the money goes before the deal</li>
+      <li><b>Side bets, free</b>Player Pair · Banker Pair</li>
+      <li><b>Pro adds</b>Perfect Pair · Either Pair · Dragon Bonus · Dragon 7 · Panda 8, plus EZ and no-commission variants</li>
+    </ul>
+    <div class="shots">
+      <figure><img src="assets/shots/baccarat-1.webp" alt="The baccarat table" width="200" loading="lazy"><figcaption>Player, Banker or Tie</figcaption></figure>
+      <figure><img src="assets/shots/baccarat-2.webp" alt="Baccarat side bets and paytables" width="200" loading="lazy"><figcaption>Dragon, Panda and the pairs</figcaption></figure>
+      <figure><img src="assets/shots/baccarat-3.webp" alt="Baccarat rule variants" width="200" loading="lazy"><figcaption>EZ and no-commission variants</figcaption></figure>
+    </div>
+    <a class="play" href="https://play.google.com/store/apps/details?id=com.innovizea.cardsharkbaccarat">Get it on Google Play</a>
+    <span class="price">Free · Pro $5.99</span>
+  </section>
+
+  <section class="gamecard" id="uth">
+    <div class="head">
+      <img src="assets/icons/uth.webp" alt="" width="58" height="58" loading="lazy">
+      <div><span class="sub">Ultimate Texas Hold'em</span><h3>Card Shark Ultimate Hold'em</h3></div>
+    </div>
+    <p>
+      The full game: Ante and Blind, 4× or 3× pre-flop, 2× on the flop, 1× or fold on the
+      river, against a dealer who has to qualify. Three real decisions a hand, and the
+      trainer covers all three — including the expensive one nobody talks about, checking
+      pre-flop with a hand that wanted 4×.
+    </p>
+    <ul class="facts">
+      <li><b>Decisions per hand</b>Three — pre-flop, flop, river</li>
+      <li><b>Side bets, free</b>Trips · Bad Beat · Pocket Bonus · Ultimate Pair</li>
+      <li><b>Pro adds</b>The Progressive (royal flush pays 10,000×) and the full flop/river trainer</li>
+    </ul>
+    <div class="shots">
+      <figure><img src="assets/shots/uth-1.webp" alt="An Ultimate Hold'em hand in progress" width="200" loading="lazy"><figcaption>Ante, Blind and Play</figcaption></figure>
+      <figure><img src="assets/shots/uth-2.webp" alt="Ultimate Hold'em side bets" width="200" loading="lazy"><figcaption>Four side bets, free</figcaption></figure>
+      <figure><img src="assets/shots/uth-3.webp" alt="The Ultimate Hold'em decision trainer" width="200" loading="lazy"><figcaption>The decision trainer</figcaption></figure>
+    </div>
+    <a class="play" href="https://play.google.com/store/apps/details?id=com.innovizea.cardsharkuth">Get it on Google Play</a>
+    <span class="price">Free · Pro $5.99</span>
+  </section>
+
+  <section class="gamecard" id="3cp">
+    <div class="head">
+      <img src="assets/icons/3cp.webp" alt="" width="58" height="58" loading="lazy">
+      <div><span class="sub">Three Card Poker</span><h3>Card Shark 3 Card Poker</h3></div>
+    </div>
+    <p>
+      Ante, look, then play or fold against a dealer who needs queen-high to qualify — and
+      yes, a straight beats a flush here. One decision, one rule to get right, and the
+      trainer teaches it properly: Q-6-4 or better. Every side bet on this table shows its
+      real house edge, because a paytable you can't price isn't a choice.
+    </p>
+    <ul class="facts">
+      <li><b>Decisions per hand</b>One — play or fold</li>
+      <li><b>Side bets, free</b>Pair Plus <em>(house edge shown: 7.28%)</em></li>
+      <li><b>Pro adds</b>Prime <em>(3.62%)</em> and the 6-Card Bonus <em>(8.5%)</em>, plus the full edge report</li>
+    </ul>
+    <div class="shots">
+      <figure><img src="assets/shots/3cp-1.webp" alt="A Three Card Poker hand" width="200" loading="lazy"><figcaption>Play or fold</figcaption></figure>
+      <figure><img src="assets/shots/3cp-2.webp" alt="Pair Plus, Prime and 6-Card Bonus side bets" width="200" loading="lazy"><figcaption>Pair Plus, Prime, 6-Card Bonus</figcaption></figure>
+      <figure><img src="assets/shots/3cp-3.webp" alt="The Three Card Poker strategy trainer" width="200" loading="lazy"><figcaption>The Q-6-4 rule, taught</figcaption></figure>
+    </div>
+    <a class="play" href="https://play.google.com/store/apps/details?id=com.innovizea.cardshark3cp">Get it on Google Play</a>
+    <span class="price">Free · Pro $5.99</span>
+  </section>
+
+  <section class="gamecard" id="mississippi">
+    <div class="head">
+      <img src="assets/icons/mississippi.webp" alt="" width="58" height="58" loading="lazy">
+      <div><span class="sub">Mississippi Stud</span><h3>Card Shark Mississippi Stud</h3></div>
+    </div>
+    <p>
+      No dealer to beat — post an Ante, then fold or raise 1×, 2× or 3× on 3rd, 4th and 5th
+      Street, and get paid on everything you put out. Three decisions a hand makes it the
+      most punishing game on the floor to play by feel, so the trainer implements the full
+      point-count strategy. It will also show you that 2× is never the book play.
+    </p>
+    <ul class="facts">
+      <li><b>Decisions per hand</b>Three — 3rd, 4th and 5th Street</li>
+      <li><b>Side bets, free</b>3-Card Bonus</li>
+      <li><b>Pro adds</b>The Progressive (royal pays 10,000×) and the complete 4th/5th Street trainer</li>
+    </ul>
+    <div class="shots">
+      <figure><img src="assets/shots/mississippi-1.webp" alt="A Mississippi Stud hand on 4th Street" width="200" loading="lazy"><figcaption>Three betting streets</figcaption></figure>
+      <figure><img src="assets/shots/mississippi-2.webp" alt="The 3-Card Bonus and progressive side bets" width="200" loading="lazy"><figcaption>3-Card Bonus and the progressive</figcaption></figure>
+      <figure><img src="assets/shots/mississippi-3.webp" alt="The Mississippi Stud point-count trainer" width="200" loading="lazy"><figcaption>The point-count trainer</figcaption></figure>
+    </div>
+    <a class="play" href="https://play.google.com/store/apps/details?id=com.innovizea.mississippistud">Get it on Google Play</a>
+    <span class="price">Free · Pro $5.99</span>
+  </section>
+
+  <section class="gamecard" id="paigow">
+    <div class="head">
+      <img src="assets/icons/paigow.webp" alt="" width="58" height="58" loading="lazy">
+      <div><span class="sub">Pai Gow Poker</span><h3>Card Shark Pai Gow Poker</h3></div>
+    </div>
+    <p>
+      Seven cards and a semi-wild joker, split into a five-card high hand and a two-card low
+      hand — and you have to win both. It's the deepest decision in the pit and the one most
+      players hand straight to the dealer. The <strong>entire house-way trainer is free</strong>:
+      set your hand, and it shows you what the house would have done and why.
+    </p>
+    <ul class="facts">
+      <li><b>Decisions per hand</b>One, but it's the biggest one in the room</li>
+      <li><b>Side bets, free</b>Fortune Bonus — plus the whole house-way trainer</li>
+      <li><b>Pro adds</b>The Progressive (five aces pays 2,000×) and the trainer's edge reports</li>
+    </ul>
+    <div class="shots">
+      <figure><img src="assets/shots/paigow-1.webp" alt="Setting a Pai Gow hand" width="200" loading="lazy"><figcaption>Set your seven cards</figcaption></figure>
+      <figure><img src="assets/shots/paigow-2.webp" alt="Fortune Bonus and progressive side bets" width="200" loading="lazy"><figcaption>Fortune Bonus and the progressive</figcaption></figure>
+      <figure><img src="assets/shots/paigow-3.webp" alt="The house-way trainer" width="200" loading="lazy"><figcaption>The house-way trainer — free</figcaption></figure>
+    </div>
+    <a class="play" href="https://play.google.com/store/apps/details?id=com.innovizea.cardsharkpaigow">Get it on Google Play</a>
+    <span class="price">Free · Pro $5.99</span>
+  </section>
+
+  <section class="gamecard" id="letitride">
+    <div class="head">
+      <img src="assets/icons/letitride.webp" alt="" width="58" height="58" loading="lazy">
+      <div><span class="sub">Let It Ride</span><h3>Card Shark Let It Ride</h3></div>
+    </div>
+    <p>
+      Three equal bets out, two chances to pull one back. A pair of tens or better pays, and
+      the whole game is knowing when the two community cards have <em>not</em> earned your
+      money. The trainer scores both pull-backs.
+    </p>
+    <ul class="facts">
+      <li><b>Decisions per hand</b>Two — pull it back, or let it ride</li>
+      <li><b>Side bets, free</b>3 Card Bonus</li>
+      <li><b>Pro adds</b>The 5 Card Bonus (up to 5,000×) and the edge report</li>
+    </ul>
+    <div class="shots">
+      <figure><img src="assets/shots/letitride-1.webp" alt="A Let It Ride hand" width="200" loading="lazy"><figcaption>Pull it back, or let it ride</figcaption></figure>
+      <figure><img src="assets/shots/letitride-2.webp" alt="3 Card and 5 Card Bonus side bets" width="200" loading="lazy"><figcaption>3 Card and 5 Card Bonus</figcaption></figure>
+      <figure><img src="assets/shots/letitride-3.webp" alt="The Let It Ride trainer" width="200" loading="lazy"><figcaption>The two-decision trainer</figcaption></figure>
+    </div>
+    <a class="play" href="https://play.google.com/store/apps/details?id=com.innovizea.cardsharkletitride">Get it on Google Play</a>
+    <span class="price">Free · Pro $5.99</span>
+  </section>
+
+  <section class="gamecard" id="caribbean">
+    <div class="head">
+      <img src="assets/icons/caribbean.webp" alt="" width="58" height="58" loading="lazy">
+      <div><span class="sub">Caribbean Stud</span><h3>Card Shark Caribbean Stud</h3></div>
+    </div>
+    <p>
+      Ante, five cards, one look at the dealer's up card, then raise 2× or fold against an
+      ace-king qualifier. Simple to play, easy to play wrong — the trainer covers the
+      borderline raises that cost the most.
+    </p>
+    <ul class="facts">
+      <li><b>Decisions per hand</b>One — raise or fold</li>
+      <li><b>Side bets, free</b>5+1 Bonus</li>
+      <li><b>Pro adds</b>The Jackpot side bet (up to 1,000×) and the edge report</li>
+    </ul>
+    <div class="shots">
+      <figure><img src="assets/shots/caribbean-1.webp" alt="A Caribbean Stud hand" width="200" loading="lazy"><figcaption>Raise or fold</figcaption></figure>
+      <figure><img src="assets/shots/caribbean-2.webp" alt="5+1 Bonus and Jackpot side bets" width="200" loading="lazy"><figcaption>5+1 Bonus and the Jackpot</figcaption></figure>
+      <figure><img src="assets/shots/caribbean-3.webp" alt="The Caribbean Stud trainer" width="200" loading="lazy"><figcaption>The raise/fold trainer</figcaption></figure>
+    </div>
+    <a class="play" href="https://play.google.com/store/apps/details?id=com.innovizea.cardsharkcaribbean">Get it on Google Play</a>
+    <span class="price">Free · Pro $5.99</span>
+  </section>
+
+  <section class="gamecard" id="crisscross">
+    <div class="head">
+      <img src="assets/icons/crisscross.webp" alt="" width="58" height="58" loading="lazy">
+      <div><span class="sub">Criss Cross Poker</span><h3>Card Shark Criss Cross Poker</h3></div>
+    </div>
+    <p>
+      Two antes, two hole cards, and a five-card cross on the layout — then Across, Down and
+      Middle each get their own fold-or-raise. The two blind antes are brutal on their own;
+      the Middle bet is the one that rescues the game, so the trainer prices it exactly
+      rather than approximating.
+    </p>
+    <ul class="facts">
+      <li><b>Decisions per hand</b>Three — Across, Down, Middle</li>
+      <li><b>Side bets, free</b>None — the three-decision game is the whole game</li>
+      <li><b>Pro adds</b>The Five Card Bonus (up to 250×) and the Middle-bet edge report</li>
+    </ul>
+    <div class="shots">
+      <figure><img src="assets/shots/crisscross-1.webp" alt="The Criss Cross Poker layout" width="200" loading="lazy"><figcaption>Across, Down and Middle</figcaption></figure>
+      <figure><img src="assets/shots/crisscross-2.webp" alt="The Five Card Bonus side bet" width="200" loading="lazy"><figcaption>The Five Card Bonus</figcaption></figure>
+      <figure><img src="assets/shots/crisscross-3.webp" alt="The Criss Cross trainer" width="200" loading="lazy"><figcaption>The Middle-bet trainer</figcaption></figure>
+    </div>
+    <a class="play" href="https://play.google.com/store/apps/details?id=com.innovizea.cardsharkcrisscross">Get it on Google Play</a>
+    <span class="price">Free · Pro $5.99</span>
+  </section>
+
+  <!-- Faster, lighter titles ---------------------------------------------- -->
+
+  <section class="gamecard" id="djwild">
+    <div class="head">
+      <img src="assets/icons/djwild.webp" alt="" width="58" height="58" loading="lazy">
+      <div><span class="sub">DJ Wild Stud</span><h3>Card Shark DJ Wild</h3></div>
+    </div>
+    <p>
+      Five wild cards in the deck — all four deuces and the joker — so the hands run big and
+      the dealer always plays. Ante and Blind, then 2× or fold. Nearly always a raise, which
+      is exactly why the folds matter.
+    </p>
+    <ul class="facts">
+      <li><b>Decisions per hand</b>One — play 2× or fold</li>
+      <li><b>Side bets, free</b>None</li>
+      <li><b>Pro adds</b>The Trips side bet — five wilds pays 2,000×</li>
+    </ul>
+    <div class="shots">
+      <figure><img src="assets/shots/djwild-1.webp" alt="A DJ Wild hand" width="200" loading="lazy"><figcaption>Five wilds in the deck</figcaption></figure>
+      <figure><img src="assets/shots/djwild-2.webp" alt="The Trips side bet" width="200" loading="lazy"><figcaption>The Trips bet</figcaption></figure>
+      <figure><img src="assets/shots/djwild-3.webp" alt="The DJ Wild trainer" width="200" loading="lazy"><figcaption>The fold/raise trainer</figcaption></figure>
+    </div>
+    <a class="play" href="https://play.google.com/store/apps/details?id=com.innovizea.cardsharkdjwild">Get it on Google Play</a>
+    <span class="price">Free · Pro $3.99</span>
+  </section>
+
+  <section class="gamecard" id="iluvsuits">
+    <div class="head">
+      <img src="assets/icons/iluvsuits.webp" alt="" width="58" height="58" loading="lazy">
+      <div><span class="sub">I Luv Suits · High Card Flush</span><h3>Card Shark I Luv Suits</h3></div>
+    </div>
+    <p>
+      Seven cards, and rank barely matters — you're building the longest flush you can, and
+      the length of it forces how big you're allowed to raise. The dealer needs a three-card
+      nine-high to qualify. Odd game, genuinely fun, almost nobody plays it correctly.
+    </p>
+    <ul class="facts">
+      <li><b>Decisions per hand</b>One — fold or play (raise size set by flush length)</li>
+      <li><b>Side bets, free</b>Flush Rush</li>
+      <li><b>Pro adds</b>Super Flush Rush — up to 8,000×</li>
+    </ul>
+    <div class="shots">
+      <figure><img src="assets/shots/iluvsuits-1.webp" alt="Building a flush in I Luv Suits" width="200" loading="lazy"><figcaption>Longest flush wins</figcaption></figure>
+      <figure><img src="assets/shots/iluvsuits-2.webp" alt="Flush Rush and Super Flush Rush side bets" width="200" loading="lazy"><figcaption>Flush Rush and Super Flush Rush</figcaption></figure>
+      <figure><img src="assets/shots/iluvsuits-3.webp" alt="Placing bets in I Luv Suits" width="200" loading="lazy"><figcaption>Raise size follows flush length</figcaption></figure>
+    </div>
+    <a class="play" href="https://play.google.com/store/apps/details?id=com.innovizea.cardsharkiluvsuits">Get it on Google Play</a>
+    <span class="price">Free · Pro $3.99</span>
+  </section>
+
+  <section class="gamecard" id="war">
+    <div class="head">
+      <img src="assets/icons/war.webp" alt="" width="58" height="58" loading="lazy">
+      <div><span class="sub">Casino War</span><h3>Card Shark War</h3></div>
+    </div>
+    <p>
+      High card wins. Tie, and you either surrender half or go to war. That's the entire
+      game and we've priced it accordingly — but the one decision it does have is worth
+      knowing, and the app shows you the real 2.33% edge rather than a rounder, friendlier
+      number.
+    </p>
+    <ul class="facts">
+      <li><b>Decisions per hand</b>Only on a tie — war, or surrender</li>
+      <li><b>Side bets, free</b>None</li>
+      <li><b>Pro adds</b>The Tie bet at 10:1, plus the edge report</li>
+    </ul>
+    <div class="shots">
+      <figure><img src="assets/shots/war-1.webp" alt="A Casino War hand" width="200" loading="lazy"><figcaption>High card wins</figcaption></figure>
+      <figure><img src="assets/shots/war-2.webp" alt="The Tie side bet" width="200" loading="lazy"><figcaption>The Tie bet</figcaption></figure>
+      <figure><img src="assets/shots/war-3.webp" alt="Going to war or surrendering" width="200" loading="lazy"><figcaption>Go to war, or surrender</figcaption></figure>
+    </div>
+    <a class="play" href="https://play.google.com/store/apps/details?id=com.innovizea.cardsharkwar">Get it on Google Play</a>
+    <span class="price">Free · Pro $3.99</span>
+  </section>
+
+  <!-- The side-bet index. Built for the players who came for the bonus bets and want to
+       know, in one screen, which game carries which. Mirrors the free/Pro split above. -->
+  <h2 class="section" id="sidebets">The side-bet index</h2>
+  <div class="tablewrap">
+    <table class="grid">
+      <thead>
+        <tr><th>Game</th><th>Free side bets</th><th>Unlocked with Pro</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Card Shark 21</td><td>21+3, Perfect Pairs</td><td>Remaining side bets, all variants, betting systems, counting deviations</td></tr>
+        <tr><td>Baccarat</td><td>Player Pair, Banker Pair</td><td>Perfect Pair, Either Pair, Dragon Bonus, Dragon 7, Panda 8</td></tr>
+        <tr><td>Video Poker</td><td>—<span class="price"> (six games instead)</span></td><td>Bonus, Double Bonus, Double Double Bonus, Deuces Wild, Joker Poker</td></tr>
+        <tr><td>Ultimate Hold'em</td><td>Trips, Bad Beat, Pocket, Ultimate Pair</td><td>Progressive — royal 10,000×</td></tr>
+        <tr><td>3 Card Poker</td><td>Pair Plus (7.28%)</td><td>Prime (3.62%), 6-Card Bonus (8.5%)</td></tr>
+        <tr><td>Mississippi Stud</td><td>3-Card Bonus</td><td>Progressive — royal 10,000×</td></tr>
+        <tr><td>Pai Gow Poker</td><td>Fortune Bonus</td><td>Progressive — five aces 2,000×</td></tr>
+        <tr><td>Let It Ride</td><td>3 Card Bonus</td><td>5 Card Bonus — up to 5,000×</td></tr>
+        <tr><td>Caribbean Stud</td><td>5+1 Bonus</td><td>Jackpot — up to 1,000×</td></tr>
+        <tr><td>Criss Cross Poker</td><td>—</td><td>Five Card Bonus — up to 250×</td></tr>
+        <tr><td>DJ Wild</td><td>—</td><td>Trips — five wilds 2,000×</td></tr>
+        <tr><td>I Luv Suits</td><td>Flush Rush</td><td>Super Flush Rush — up to 8,000×</td></tr>
+        <tr><td>War</td><td>—</td><td>Tie bet at 10:1</td></tr>
+      </tbody>
+    </table>
+  </div>
 
   <h2 class="section">About these games</h2>
   <div class="callout">
@@ -119,6 +475,10 @@
       The Card Shark games are <strong>simulations built for learning</strong>: you play with
       virtual chips, and the trainers grade you against the same engine the table itself
       plays by.
+    </p>
+    <p>
+      Where a side bet has a published house edge, we show it — including the ugly ones.
+      A bonus bet is more fun when you know what it costs.
     </p>
     <p>
       There is <strong>no real-money wagering and no cash prizes</strong> in any of our apps.
