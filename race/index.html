@@ -130,6 +130,54 @@
   }
   .bulk-controls button.secondary { background: rgba(255,255,255,0.1); color: #fff; }
   .bulk-controls .count { margin-left: auto; font-size: 11px; color: #aaa; }
+  /* Live chat join lobby */
+  .chat-panel { margin-bottom: 12px; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  .chat-panel summary {
+    cursor: pointer; padding: 8px 10px; background: rgba(255,255,255,0.05);
+    font-size: 13px; color: var(--accent); user-select: none;
+  }
+  .chat-panel[open] summary { border-bottom: 1px solid var(--border); }
+  .chat-body { padding: 8px; display: grid; gap: 7px; }
+  .chat-field { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+  .chat-field > label { color: #bbb; width: 72px; flex: none; }
+  .chat-field input[type=text],
+  .chat-field input[type=password],
+  .chat-field select {
+    flex: 1; min-width: 0;
+    background: rgba(255,255,255,0.08); color: #fff;
+    border: 1px solid var(--border); border-radius: 4px;
+    padding: 5px 7px; font-size: 12px; outline: none;
+  }
+  .chat-field input[type=number] {
+    width: 56px; flex: none;
+    background: rgba(255,255,255,0.08); color: #fff;
+    border: 1px solid var(--border); border-radius: 4px;
+    padding: 5px 7px; font-size: 12px; outline: none;
+  }
+  .chat-field input:focus, .chat-field select:focus { border-color: var(--accent); }
+  .chat-field .unit { color: #777; font-size: 10px; }
+  .chat-src { display: none; }
+  .chat-src.show { display: grid; gap: 7px; }
+  .chat-actions { display: flex; gap: 6px; align-items: center; margin-top: 2px; }
+  .chat-actions button {
+    background: var(--accent); color: #111; border: none;
+    border-radius: 6px; padding: 6px 10px;
+    font-size: 12px; font-weight: 600; cursor: pointer;
+  }
+  .chat-actions button.secondary { background: rgba(255,255,255,0.1); color: #fff; }
+  .chat-actions button:disabled { background: #444; color: #888; cursor: not-allowed; }
+  .chat-actions .count { margin-left: auto; font-size: 11px; color: #aaa; }
+  .chat-status { font-size: 11px; color: #aaa; line-height: 1.4; word-break: break-word; }
+  .chat-status.bad { color: var(--danger); }
+  .chat-note { font-size: 10px; color: #777; line-height: 1.45; }
+  .chat-note code { color: #999; }
+  .join-pill {
+    float: right; font-size: 10px; font-weight: 700; letter-spacing: 0.6px;
+    text-transform: uppercase; border-radius: 10px; padding: 2px 8px;
+    background: rgba(255,255,255,0.12); color: #999;
+  }
+  .join-pill.open { background: rgba(60, 220, 130, 0.2); color: var(--good); }
+
   .racer-count-badge {
     display: inline-block; background: rgba(255, 204, 51, 0.18); color: var(--accent);
     border-radius: 10px; padding: 1px 8px; font-size: 11px;
@@ -455,16 +503,25 @@
     <aside class="sidebar">
       <h1>Race to the Moon</h1>
       <p class="subtitle">Pick a winner — first to the finish wins.</p>
-      <!-- DELTAS vs the RocketScooterRace repo (3). Keep all three when re-copying:
+      <!-- DELTAS vs the RocketScooterRace repo (4). Keep all four when re-copying:
            1. This back link. The page is full-screen with overflow:hidden and has no other
               nav, so without it a visitor from the homepage is stranded.
            2. The <title> and favicon block in <head>.
            3. The product name. "Race to the Moon" replaces "Pick a Winner!" here, and the
               old subtitle folds into the new one so the page still says what it is FOR.
               The name is literal on the default theme: Cosmos sets the finish to
-              `kind: 'pixelMoon'`, so the moon really is the finish line. -->
+              `kind: 'pixelMoon'`, so the moon really is the finish line.
+           4. The download link below. The chat-join lobby is in this file but hides itself
+              on a public host (see chatUiEnabled) — TikTok needs a bridge running on the
+              streamer's own machine, and we should never ask a visitor for a YouTube API
+              key. So the feature ships as a download instead. Rebuild that zip with
+              `node build-download.mjs` in the RocketScooterRace repo. -->
       <p style="margin:-8px 0 12px;font-size:12px;">
         <a href="/" style="color:#9aa8cc;text-decoration:none;">&larr; innovizea.com</a>
+      </p>
+      <p style="margin:-8px 0 14px;font-size:11px;color:#8a93ad;line-height:1.5;">
+        Streaming? <a href="race-to-the-moon-local.zip" style="color:var(--accent);text-decoration:none;">Download
+        the local version</a> to add racers straight from your YouTube or TikTok chat.
       </p>
 
       <div class="input-row">
@@ -480,6 +537,73 @@
             <button id="bulk-add-btn">Add All</button>
             <button id="bulk-clear-btn" class="secondary">Clear</button>
             <span class="count" id="bulk-count">0 detected</span>
+          </div>
+        </div>
+      </details>
+
+      <details class="chat-panel" id="chat-panel">
+        <summary>Live chat join <span class="join-pill" id="join-pill">closed</span></summary>
+        <div class="chat-body">
+          <div class="chat-field">
+            <label for="chat-platform">Source</label>
+            <select id="chat-platform">
+              <option value="youtube">YouTube Live</option>
+              <option value="tiktok">TikTok Live (via bridge)</option>
+            </select>
+          </div>
+          <div class="chat-field">
+            <label for="chat-keyword">Keyword</label>
+            <input id="chat-keyword" type="text" maxlength="30" value="!race" placeholder="!race" />
+          </div>
+
+          <div class="chat-src" id="chat-src-youtube">
+            <div class="chat-field">
+              <label for="yt-video">Stream</label>
+              <input id="yt-video" type="text" placeholder="Live URL or video ID" />
+            </div>
+            <div class="chat-field">
+              <label for="yt-key">API key</label>
+              <input id="yt-key" type="password" placeholder="YouTube Data API v3 key" autocomplete="off" />
+            </div>
+            <div class="chat-field">
+              <label for="yt-poll">Poll</label>
+              <input id="yt-poll" type="number" min="3" max="60" step="1" value="6" />
+              <span class="unit">seconds &middot; 5 quota units each</span>
+            </div>
+            <div class="chat-note">
+              Works from a double-clicked file &mdash; nothing to install. The key stays in this
+              browser's local storage and is never written into the page; restrict it to the
+              YouTube Data API.
+            </div>
+          </div>
+
+          <div class="chat-src" id="chat-src-tiktok">
+            <div class="chat-field">
+              <label for="tt-user">Username</label>
+              <input id="tt-user" type="text" placeholder="@yourhandle" />
+            </div>
+            <div class="chat-field">
+              <label for="tt-bridge">Bridge</label>
+              <input id="tt-bridge" type="text" value="ws://localhost:8787" placeholder="ws://localhost:8787" />
+            </div>
+            <div class="chat-note">
+              TikTok has no public chat API. This is the one part that needs an install: start the
+              TikTok helper on your own machine first, then Connect. Nothing about your stream
+              leaves your computer.
+            </div>
+          </div>
+
+          <div class="chat-actions">
+            <button id="chat-connect-btn">Connect</button>
+            <button id="join-toggle-btn" class="secondary">Open joins</button>
+            <button id="chat-test-btn" class="secondary" title="Fake a chat message that says the keyword">Test</button>
+            <span class="count" id="chat-joins">0 joined</span>
+          </div>
+          <div class="chat-status" id="chat-status">Not connected.</div>
+          <div class="chat-note">
+            One entry per viewer. Joins close when the race starts &mdash; type a new keyword to open
+            the next round. The name list is never cleared automatically, so you can re-run the same
+            field as many times as you like; use Clear All when you want a fresh lobby.
           </div>
         </div>
       </details>
@@ -704,6 +828,15 @@
     // Theme
     themeId: 'cosmos',
     customTheme: null, // populated on first edit
+    // Live chat lobby
+    chat: {
+      conn: null,          // active source handle ({ stop() }) or null
+      connected: false,
+      joinOpen: false,     // are we watching chat for the keyword right now?
+      keyword: '!race',
+      joinCount: 0,        // joins since the window last opened
+      entrants: {},        // "platform:userId" -> lowercased name they claimed (persisted)
+    },
   };
 
   /* ----- DOM ----- */
@@ -745,6 +878,20 @@
   const themeSelect      = $('#theme-select');
   const customEditor     = $('#custom-editor');
   const legendRowsEl     = $('#legend-rows');
+  const chatPanel        = $('#chat-panel');
+  const chatPlatformSel  = $('#chat-platform');
+  const chatKeywordInput = $('#chat-keyword');
+  const chatConnectBtn   = $('#chat-connect-btn');
+  const joinToggleBtn    = $('#join-toggle-btn');
+  const chatTestBtn      = $('#chat-test-btn');
+  const joinPill         = $('#join-pill');
+  const chatJoinsEl      = $('#chat-joins');
+  const chatStatusEl     = $('#chat-status');
+  const ytVideoInput     = $('#yt-video');
+  const ytKeyInput       = $('#yt-key');
+  const ytPollInput      = $('#yt-poll');
+  const ttUserInput      = $('#tt-user');
+  const ttBridgeInput    = $('#tt-bridge');
 
   /* ----- Helpers ----- */
   function uid() { return Math.random().toString(36).slice(2, 9); }
@@ -938,6 +1085,7 @@
       case 'crash': noise(0.25, 0.25); break;
       case 'boost': beep(660, 0.08, 'sawtooth', 0.12); setTimeout(() => beep(990, 0.1, 'sawtooth', 0.12), 60); break;
       case 'slow':  beep(220, 0.4, 'sine', 0.12); break;
+      case 'join':  beep(587, 0.07, 'triangle', 0.1); setTimeout(() => beep(880, 0.09, 'triangle', 0.1), 70); break;
       case 'win':
         beep(523, 0.15, 'triangle', 0.18);
         setTimeout(() => beep(659, 0.15, 'triangle', 0.18), 130);
@@ -959,6 +1107,17 @@
         heatSize: parseInt(heatSizeInput.value, 10) || 16,
         themeId: state.themeId,
         customTheme: state.customTheme,
+        chat: {
+          platform: chatPlatformSel.value,
+          keyword: chatKeywordInput.value,
+          ytVideo: ytVideoInput.value,
+          ytKey: ytKeyInput.value,
+          ytPoll: ytPollInput.value,
+          ttUser: ttUserInput.value,
+          ttBridge: ttBridgeInput.value,
+          // Survives a reload so a refresh mid-lobby can't hand anyone a second entry.
+          entrants: state.chat.entrants,
+        },
       }));
     } catch (e) { /* quota */ }
   }
@@ -995,6 +1154,20 @@
       }
       if (data.customTheme && typeof data.customTheme === 'object') {
         state.customTheme = data.customTheme;
+      }
+      const c = data.chat;
+      if (c && typeof c === 'object') {
+        if (c.platform === 'youtube' || c.platform === 'tiktok') chatPlatformSel.value = c.platform;
+        if (typeof c.keyword === 'string' && c.keyword.trim()) {
+          chatKeywordInput.value = c.keyword;
+          state.chat.keyword = c.keyword.trim();
+        }
+        if (typeof c.ytVideo  === 'string') ytVideoInput.value  = c.ytVideo;
+        if (typeof c.ytKey    === 'string') ytKeyInput.value    = c.ytKey;
+        if (c.ytPoll)                       ytPollInput.value   = c.ytPoll;
+        if (typeof c.ttUser   === 'string') ttUserInput.value   = c.ttUser;
+        if (typeof c.ttBridge === 'string' && c.ttBridge) ttBridgeInput.value = c.ttBridge;
+        if (c.entrants && typeof c.entrants === 'object') state.chat.entrants = c.entrants;
       }
     } catch (e) { /* ignore */ }
   }
@@ -1053,8 +1226,11 @@
   }
 
   function removeRacer(id) {
+    const gone = state.racers.find(r => r.id === id);
     state.racers = state.racers.filter(r => r.id !== id);
     state.racers.forEach((r, i) => { r.color = colorForIndex(i); });
+    // Pulling someone off the roster by hand releases their chat entry so they can rejoin.
+    if (gone) releaseChatEntry(gone.name);
     renderRacersList();
     persist();
   }
@@ -1062,6 +1238,9 @@
   function clearAllRacers() {
     if (state.isRunning) return;
     state.racers = [];
+    state.chat.entrants = {};   // fresh lobby — everyone may enter again
+    state.chat.joinCount = 0;
+    updateChatUi();
     renderRacersList();
     persist();
   }
@@ -1425,6 +1604,8 @@
   }
 
   function runRaceFlow(isTournamentRound) {
+    // The lobby shuts the moment we roll — the roster stays put for re-runs.
+    closeJoins('Race started — joins closed. Type a new keyword to open the next round.');
     state.obstacles.forEach(o => o.el && o.el.remove());
     state.obstacles = [];
     state.particles = [];
@@ -2112,7 +2293,362 @@
     return arr;
   }
 
+  /* =========================================================================
+     Live chat join lobby
+
+     Viewers type a keyword in the stream chat and get added to the roster,
+     once each. The join window closes the moment a race starts and reopens
+     when a new keyword is set — the roster itself is never cleared, so the
+     same field can be re-raced as often as you like.
+     ========================================================================= */
+
+  /**
+   * The chat lobby is only useful on a copy running on the streamer's own machine:
+   * TikTok needs the local bridge, and YouTube needs an API key we should never ask
+   * a random visitor for. So the panel appears for local copies (file://, localhost)
+   * and stays out of the way on a public host. ?chat=1 / ?chat=0 force it either way.
+   */
+  function chatUiEnabled() {
+    const q = new URLSearchParams(location.search).get('chat');
+    if (q === '1' || q === 'on')  return true;
+    if (q === '0' || q === 'off') return false;
+    const h = location.hostname;
+    return h === '' ||                    // file://
+           h === 'localhost' || h.endsWith('.localhost') ||
+           h === '127.0.0.1' || h === '::1' || h === '[::1]';
+  }
+
+  function setChatStatus(text, isBad) {
+    chatStatusEl.textContent = text || '';
+    chatStatusEl.classList.toggle('bad', !!isBad);
+  }
+
+  function updateChatUi() {
+    const c = state.chat;
+    joinPill.textContent = c.joinOpen ? 'open' : 'closed';
+    joinPill.classList.toggle('open', c.joinOpen);
+    chatConnectBtn.textContent = c.connected ? 'Disconnect' : 'Connect';
+    joinToggleBtn.textContent = c.joinOpen ? 'Close joins' : 'Open joins';
+    chatJoinsEl.textContent = `${c.joinCount} joined`;
+  }
+
+  function updateChatSourceRows() {
+    const p = chatPlatformSel.value;
+    $('#chat-src-youtube').classList.toggle('show', p === 'youtube');
+    $('#chat-src-tiktok').classList.toggle('show', p === 'tiktok');
+  }
+
+  /* ----- Join window ----- */
+  function openJoins() {
+    const kw = chatKeywordInput.value.trim();
+    if (!kw) { setChatStatus('Set a keyword first.', true); return; }
+    state.chat.keyword = kw;
+    state.chat.joinCount = 0;
+    state.chat.joinOpen = true;
+    updateChatUi();
+    setChatStatus(state.chat.connected
+      ? `Joins OPEN — viewers type ${kw} in chat to enter.`
+      : `Joins OPEN — but no chat is connected yet, so only Test will add anyone.`);
+  }
+
+  function closeJoins(why) {
+    if (!state.chat.joinOpen) { updateChatUi(); return; }
+    state.chat.joinOpen = false;
+    updateChatUi();
+    setChatStatus(why || 'Joins closed.');
+  }
+
+  /* ----- Entrant bookkeeping ----- */
+  function releaseChatEntry(name) {
+    const key = (name || '').toLowerCase();
+    if (!key) return;
+    for (const k of Object.keys(state.chat.entrants)) {
+      if (state.chat.entrants[k] === key) delete state.chat.entrants[k];
+    }
+  }
+
+  // A keyword counts only when it stands on its own — "!race" matches, "!racecar" does not.
+  function keywordMatches(text, keyword) {
+    if (!keyword) return false;
+    const t = (text || '').toLowerCase();
+    const k = keyword.toLowerCase();
+    const isWordChar = (ch) => ch !== undefined && /[a-z0-9_]/.test(ch);
+    let from = 0, i;
+    while ((i = t.indexOf(k, from)) !== -1) {
+      if (!isWordChar(t[i - 1]) && !isWordChar(t[i + k.length])) return true;
+      from = i + 1;
+    }
+    return false;
+  }
+
+  function sanitizeChatName(raw) {
+    return (raw || '')
+      .replace(/[\u0000-\u001F\u007F-\u009F\u00AD\u200B-\u200F\u2028\u2029\u202A-\u202E\uFEFF]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .slice(0, 40);
+  }
+
+  function handleChatMessage(msg) {
+    if (!state.chat.joinOpen) return;                       // race is running / window closed
+    if (!keywordMatches(msg.text, state.chat.keyword)) return;
+
+    const idPart = String(msg.userId || msg.displayName || '').toLowerCase();
+    if (!idPart) return;
+    const key = msg.platform + ':' + idPart;
+    if (state.chat.entrants[key]) return;                   // one entry per viewer
+
+    const name = sanitizeChatName(msg.displayName);
+    if (!name) return;
+
+    // Someone already racing under this display name — claim the slot so we stop
+    // re-checking them, but don't add a duplicate lane.
+    if (state.racers.some(r => r.name.toLowerCase() === name.toLowerCase())) {
+      state.chat.entrants[key] = name.toLowerCase();
+      persist();
+      return;
+    }
+    if (state.racers.length >= MAX_RACERS) {
+      setChatStatus(`Roster is full at ${MAX_RACERS} — joins are still open but new names are dropped.`, true);
+      return;
+    }
+    if (!addRacer(name, { silent: true })) return;
+
+    state.chat.entrants[key] = name.toLowerCase();
+    state.chat.joinCount++;
+    renderRacersList();
+    persist();
+    updateChatUi();
+    logEvent(`${name} joined`, 'good');
+    sfx('join');
+  }
+
+  /* ----- Source: YouTube Live (polled straight from the browser) ----- */
+  function parseYouTubeVideoId(input) {
+    const s = (input || '').trim();
+    if (!s) return '';
+    if (/^[\w-]{11}$/.test(s)) return s;
+    const patterns = [/[?&]v=([\w-]{11})/, /youtu\.be\/([\w-]{11})/, /\/live\/([\w-]{11})/,
+                      /\/embed\/([\w-]{11})/, /\/shorts\/([\w-]{11})/];
+    for (const re of patterns) {
+      const m = s.match(re);
+      if (m) return m[1];
+    }
+    return '';
+  }
+
+  async function startYouTube(cfg, hooks) {
+    const videoId = parseYouTubeVideoId(cfg.video);
+    if (!videoId) throw new Error('Could not read a video ID from that URL.');
+    if (!cfg.apiKey) throw new Error('A YouTube Data API v3 key is required.');
+
+    const api = async (path, params) => {
+      const url = new URL('https://www.googleapis.com/youtube/v3/' + path);
+      Object.keys(params).forEach(k => { if (params[k]) url.searchParams.set(k, params[k]); });
+      url.searchParams.set('key', cfg.apiKey);
+      let res, body;
+      try {
+        res = await fetch(url.toString());
+        body = await res.json();
+      } catch (e) {
+        const err = new Error('Network error talking to YouTube: ' + e.message);
+        err.transient = true;
+        throw err;
+      }
+      if (!res.ok) {
+        const info = (body && body.error) || {};
+        const reason = (info.errors && info.errors[0] && info.errors[0].reason) || String(res.status);
+        const err = new Error(info.message || ('YouTube API error ' + reason));
+        err.reason = reason;
+        throw err;
+      }
+      return body;
+    };
+
+    hooks.onStatus('Looking up the live chat…');
+    const video = await api('videos', { part: 'liveStreamingDetails', id: videoId });
+    const item = video.items && video.items[0];
+    if (!item) throw new Error('No video found for that ID — check the link.');
+    const liveChatId = item.liveStreamingDetails && item.liveStreamingDetails.activeLiveChatId;
+    if (!liveChatId) throw new Error('That video has no active live chat. Is the stream actually live?');
+
+    let stopped = false, timer = null, pageToken = '', firstPage = true;
+    const startedAt = Date.now();
+
+    const poll = async () => {
+      if (stopped) return;
+      try {
+        const data = await api('liveChatMessages', {
+          liveChatId, part: 'snippet,authorDetails', maxResults: '200', pageToken,
+        });
+        pageToken = data.nextPageToken || '';
+        (data.items || []).forEach(m => {
+          const sn = m.snippet || {}, au = m.authorDetails || {};
+          if (sn.type !== 'textMessageEvent') return;
+          // The first page hands back recent backlog; ignore anything older than the connect.
+          if (firstPage && sn.publishedAt && Date.parse(sn.publishedAt) < startedAt) return;
+          hooks.onMessage({
+            platform: 'youtube',
+            userId: au.channelId || '',
+            displayName: au.displayName || '',
+            text: (sn.textMessageDetails && sn.textMessageDetails.messageText) || sn.displayMessage || '',
+          });
+        });
+        firstPage = false;
+        const wait = Math.max(cfg.pollMs, Number(data.pollingIntervalMillis) || 0);
+        if (state.chat.joinOpen) {
+          hooks.onStatus(`Joins OPEN — viewers type ${state.chat.keyword} in YouTube chat. Polling every ${(wait / 1000).toFixed(0)}s.`);
+        }
+        timer = setTimeout(poll, wait);
+      } catch (e) {
+        if (e.reason === 'quotaExceeded' || e.reason === 'rateLimitExceeded') {
+          hooks.onClosed('YouTube API quota exhausted — ' + e.message); return;
+        }
+        if (e.reason === 'liveChatEnded' || e.reason === 'liveChatNotFound' || e.reason === 'forbidden') {
+          hooks.onClosed('YouTube chat unavailable — ' + e.message); return;
+        }
+        hooks.onStatus('YouTube hiccup, retrying: ' + e.message, true);
+        timer = setTimeout(poll, Math.max(cfg.pollMs, 10000));
+      }
+    };
+
+    poll();
+    return { stop() { stopped = true; if (timer) clearTimeout(timer); } };
+  }
+
+  /* ----- Source: local bridge over WebSocket (TikTok) ----- */
+  function startBridge(cfg, hooks) {
+    return new Promise((resolve, reject) => {
+      let ws;
+      try { ws = new WebSocket(cfg.bridgeUrl); }
+      catch (e) { reject(new Error('Bad bridge URL: ' + e.message)); return; }
+
+      let settled = false, manual = false;
+      const handle = { stop() { manual = true; try { ws.close(); } catch (e) { /* already gone */ } } };
+      const fail = (message) => {
+        if (settled) { if (!manual) hooks.onClosed(message); }
+        else { settled = true; try { ws.close(); } catch (e) {} reject(new Error(message)); }
+      };
+
+      ws.onopen = () => {
+        hooks.onStatus('Bridge reached — subscribing…');
+        ws.send(JSON.stringify({ type: 'subscribe', platform: cfg.platform, channel: cfg.channel }));
+      };
+      ws.onmessage = (ev) => {
+        let m;
+        try { m = JSON.parse(ev.data); } catch (e) { return; }
+        if (m.type === 'chat') {
+          hooks.onMessage({
+            platform: m.platform || cfg.platform,
+            userId: m.userId || '',
+            displayName: m.displayName || '',
+            text: m.text || '',
+          });
+        } else if (m.type === 'ready') {
+          if (!settled) { settled = true; hooks.onStatus(m.message || 'Bridge connected.'); resolve(handle); }
+          else hooks.onStatus(m.message || 'Bridge connected.');
+        } else if (m.type === 'status') {
+          hooks.onStatus(m.message || '');
+        } else if (m.type === 'error') {
+          fail(m.message || 'Bridge reported an error.');
+        }
+      };
+      ws.onerror = () => fail(`Could not reach the bridge at ${cfg.bridgeUrl}. Is "npm start" running in bridge/?`);
+      ws.onclose  = () => fail('Bridge connection closed.');
+    });
+  }
+
+  /* ----- Connect / disconnect ----- */
+  function disconnectChat(why) {
+    if (state.chat.conn) { try { state.chat.conn.stop(); } catch (e) { /* ignore */ } }
+    state.chat.conn = null;
+    state.chat.connected = false;
+    state.chat.joinOpen = false;
+    updateChatUi();
+    setChatStatus(why || 'Disconnected.', !!why);
+  }
+
+  async function connectChat() {
+    if (state.chat.connected) { disconnectChat('Disconnected.'); return; }
+
+    const platform = chatPlatformSel.value;
+    const keyword = chatKeywordInput.value.trim();
+    if (!keyword) { setChatStatus('Set a keyword first.', true); return; }
+    state.chat.keyword = keyword;
+
+    const hooks = {
+      onMessage: handleChatMessage,
+      onStatus: (m, bad) => setChatStatus(m, bad),
+      onClosed: (m) => disconnectChat(m),
+    };
+
+    chatConnectBtn.disabled = true;
+    setChatStatus('Connecting…');
+    try {
+      let conn;
+      if (platform === 'youtube') {
+        conn = await startYouTube({
+          video: ytVideoInput.value,
+          apiKey: ytKeyInput.value.trim(),
+          pollMs: Math.max(3, Math.min(60, parseInt(ytPollInput.value, 10) || 6)) * 1000,
+        }, hooks);
+      } else {
+        const channel = ttUserInput.value.trim();
+        if (!channel) throw new Error('Enter the TikTok @username that is live.');
+        conn = await startBridge({
+          platform: 'tiktok',
+          channel,
+          bridgeUrl: ttBridgeInput.value.trim() || 'ws://localhost:8787',
+        }, hooks);
+      }
+      state.chat.conn = conn;
+      state.chat.connected = true;
+      persist();
+      openJoins();
+    } catch (e) {
+      state.chat.conn = null;
+      state.chat.connected = false;
+      setChatStatus(e.message || String(e), true);
+    }
+    chatConnectBtn.disabled = false;
+    updateChatUi();
+  }
+
   /* ----- Wiring ----- */
+  chatPlatformSel.addEventListener('change', () => {
+    if (state.chat.connected) disconnectChat('Source changed — reconnect to resume.');
+    updateChatSourceRows();
+    persist();
+  });
+  chatKeywordInput.addEventListener('change', () => {
+    const kw = chatKeywordInput.value.trim();
+    persist();
+    if (!kw || kw === state.chat.keyword) return;
+    state.chat.keyword = kw;
+    // A new keyword starts a new round of joins, per the lobby rules.
+    if (!state.chat.joinOpen && !state.isRunning && !state.isCountingDown) openJoins();
+    else updateChatUi();
+  });
+  chatConnectBtn.addEventListener('click', connectChat);
+  joinToggleBtn.addEventListener('click', () => {
+    if (state.chat.joinOpen) closeJoins('Joins closed by host. Type a new keyword to open the next round.');
+    else openJoins();
+  });
+  // Fakes a chat message down the exact same path a real one takes.
+  let testJoinSeq = 0;
+  chatTestBtn.addEventListener('click', () => {
+    if (!state.chat.joinOpen) { setChatStatus('Joins are closed — open them first.', true); return; }
+    testJoinSeq++;
+    handleChatMessage({
+      platform: 'test',
+      userId: 'tester-' + testJoinSeq,
+      displayName: 'Test Viewer ' + testJoinSeq,
+      text: 'hey ' + state.chat.keyword + ' lets go',
+    });
+  });
+  [ytVideoInput, ytKeyInput, ytPollInput, ttUserInput, ttBridgeInput]
+    .forEach(el => el.addEventListener('change', persist));
+
   addBtn.addEventListener('click', () => { addRacer(nameInput.value); nameInput.value = ''; nameInput.focus(); });
   nameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { addRacer(nameInput.value); nameInput.value = ''; } });
   racersListEl.addEventListener('click', (e) => {
@@ -2178,6 +2714,13 @@
   sizeCanvas();
   restore();
   applyTheme(); // paints finish, renders legend, syncs dropdown + editor
+  // Detaching still leaves the element references usable, so persist() keeps working.
+  if (chatUiEnabled()) {
+    updateChatSourceRows();
+    updateChatUi();
+  } else {
+    chatPanel.remove();
+  }
   if (state.racers.length === 0) {
     addRacer('Alice'); addRacer('Bob'); addRacer('Charlie');
   } else {

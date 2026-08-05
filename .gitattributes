@@ -5,3 +5,5 @@ app-ads.txt text eol=lf
 *.webp binary
 *.png binary
 *.ico binary
+# The downloadable race package — `* text=auto` would mangle the archive.
+*.zip binary
