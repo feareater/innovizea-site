@@ -10,13 +10,27 @@
      Thunk       sky -> apricot      (prototype/src/styles.css page gradient)
      Choptick    copper #c2895f      (Steel & Copper, public/css/app.css)
    Add a product = add a .p-<name> block near the bottom, nothing else. */
+/* DRYDOCK. Mirrors innovizea-brand/tokens.css — the site ground is dark, so
+   these are the dark-ground values. The shell stays neutral for the reason
+   given above; what changed is that the neutral is now the SAME neutral the
+   apps boot on, and the UI accent is the mark's teal.
+
+   WHY THE ACCENT IS NO LONGER BLUE. --sf-accent below is #4EA1FF and means
+   "the Salesforce practice". When the general UI accent was also a blue, the
+   page carried two blues with two different meanings and a reader had to work
+   out whether blue signified the company or one of its service lines. Teal is
+   the mark's own colour and nothing else here claims it. */
 :root {
-  --ink: #0E1116;
-  --ink-2: #151A21;
-  --text: #EDF1F5;
-  --dim: #93A0AE;
-  --accent: #4EA1FF;
-  --accent-dim: #2E7FD6;
+  --ink: #171B22;
+  --ink-2: #1D222A;
+  --text: #E6EAF0;
+  --dim: #939DAC;
+  --accent: #2FB8AA;
+  --accent-dim: #12897E;
+
+  /* The mark's two groups, for anywhere the logo is drawn inline. */
+  --iz-grid: #8FA3E8;
+  --iz-join: #2FB8AA;
   --border: rgba(255, 255, 255, 0.11);
   --panel: rgba(255, 255, 255, 0.035);
   --panel-hi: rgba(255, 255, 255, 0.06);
@@ -61,22 +75,23 @@ header {
   gap: 16px;
   flex-wrap: wrap;
 }
+/* The lockup: mark, then wordmark. The mark replaces the accent dot that used
+   to stand in for one — the dot was a placeholder for exactly this. */
 .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   font-size: 20px;
   font-weight: 800;
   letter-spacing: 0.4px;
   color: var(--text);
   text-decoration: none;
 }
-.brand::after {
-  content: "";
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--accent);
-  margin-left: 5px;
-  vertical-align: 2px;
+.brand-mark {
+  width: 26px;
+  height: 26px;
+  display: block;
+  flex: none;
 }
 nav a {
   color: var(--dim);

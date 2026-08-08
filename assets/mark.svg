@@ -1,0 +1,24 @@
+<!--
+  The Innovizea mark, H-2, with the Drydock dark-ground values baked in.
+
+  COLOURS ARE HARD-CODED HERE ON PURPOSE. This file is loaded through an <img>
+  tag in the site header, and an SVG loaded as an image gets no stylesheet and
+  no custom properties. The site ground is dark, so these are the dark-ground
+  values from innovizea-brand/tokens.css. If the palette changes there, change
+  it here too.
+
+  For anywhere the SVG is INLINE and can inherit, use innovizea-brand/mark.svg
+  instead, which takes the a and b custom properties.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-label="Innovizea">
+  <g fill="#8FA3E8">
+    <rect x="1.6" y="1.6" width="5.4" height="5.4" rx="1.5"/>
+    <rect x="8.4" y="1.6" width="5.4" height="5.4" rx="1.5"/>
+    <rect x="1.6" y="8.4" width="5.4" height="5.4" rx="1.5"/>
+  </g>
+  <g fill="#2FB8AA">
+    <rect x="17" y="10.2" width="5.4" height="5.4" rx="1.5"/>
+    <rect x="10.2" y="17" width="5.4" height="5.4" rx="1.5"/>
+    <rect x="17" y="17" width="5.4" height="5.4" rx="1.5"/>
+  </g>
+</svg>

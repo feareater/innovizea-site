@@ -1,15 +1,29 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="Innovizea">
-  <!-- The site mark. Echoes the header wordmark, which is INNOVIZEA followed by an accent
-       dot — so the favicon is that dot plus a slab I, the smallest piece of the lockup that
-       still reads at 16px. Drawn as rects and a circle, never <text>: a favicon cannot rely
-       on a font being present. Colours are the shell ink/accent tokens hard-coded, since an
-       SVG loaded as an icon gets no stylesheet. -->
-  <rect width="64" height="64" rx="14" fill="#0E1116"/>
-  <rect x="7" y="7" width="50" height="50" rx="10" fill="none" stroke="#FFFFFF" stroke-opacity="0.10"/>
-  <g fill="#FFFFFF">
-    <rect x="12" y="16" width="26" height="7" rx="1.5"/>
-    <rect x="21" y="16" width="8"  height="32" rx="1.5"/>
-    <rect x="12" y="41" width="26" height="7" rx="1.5"/>
+<!--
+  The site favicon. H-2 on the Drydock light ground.
+
+  WHY LIGHT AND NOT DARK. A browser tab strip is pale on every desktop OS in its
+  default theme, so the favicon is judged against near-white, not against the
+  site. These are therefore the ON-LIGHT accent values: the bright teal measures
+  about 2.2:1 against a pale ground, under the 3:1 floor, and at 16px the join
+  group stops registering and half the mark disappears.
+
+  The rounded plate keeps the mark off the tab's own background so it reads as
+  an icon rather than as six loose squares.
+
+  Colours are hard-coded because an SVG loaded as an icon gets no stylesheet.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Innovizea">
+  <rect width="32" height="32" rx="7" fill="#F3F4F6"/>
+  <g transform="translate(2.7 2.7) scale(1.1)">
+    <g fill="#232C63">
+      <rect x="1.6" y="1.6" width="5.4" height="5.4" rx="1.5"/>
+      <rect x="8.4" y="1.6" width="5.4" height="5.4" rx="1.5"/>
+      <rect x="1.6" y="8.4" width="5.4" height="5.4" rx="1.5"/>
+    </g>
+    <g fill="#12897E">
+      <rect x="17" y="10.2" width="5.4" height="5.4" rx="1.5"/>
+      <rect x="10.2" y="17" width="5.4" height="5.4" rx="1.5"/>
+      <rect x="17" y="17" width="5.4" height="5.4" rx="1.5"/>
+    </g>
   </g>
-  <circle cx="46" cy="44" r="6.5" fill="#4EA1FF"/>
 </svg>
