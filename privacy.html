@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Card Shark Privacy Policy — Innovizea LLC</title>
-<meta name="description" content="Privacy policy for the thirteen-game Card Shark family of Android apps by Innovizea LLC.">
+<meta name="description" content="Privacy policy for the sixteen-game Card Shark family of Android apps by Innovizea LLC.">
 <link rel="stylesheet" href="styles.css">
 <link rel="icon" href="/favicon.ico?v=drydock" sizes="32x32">
 <link rel="icon" href="/assets/favicon.svg?v=drydock" type="image/svg+xml">
@@ -23,29 +23,42 @@
     </nav>
   </header>
 
-  <!-- ⚠ THIS URL IS REGISTERED AS THE PRIVACY POLICY ON ALL 13 CARD SHARK PLAY LISTINGS.
+  <!-- ⚠ THIS URL IS REGISTERED AS THE PRIVACY POLICY ON ALL 16 CARD SHARK PLAY LISTINGS.
        Do not move, rename or delete this file. Play's privacy-policy field is not in the
        Publishing API (App content -> Privacy policy), so a moved URL means re-editing
-       thirteen listings by hand.
+       sixteen listings by hand.
 
        Scope was NARROWED on 2026-08-04. It used to say "all mobile applications published
        by Innovizea LLC ... and future titles", which was wrong the moment Thunk existed:
        this document says the apps are for a general ADULT audience and that we store no
        personal data on our own servers. Thunk is rated E for Everyone and its friends
        feature writes a display name to our Firebase database. A policy that is wrong about
-       an app is worse than no policy. New app => new policy page. -->
+       an app is worse than no policy. New app => new policy page.
+
+       Scope was WIDENED to sixteen on 2026-08-22, and that is not a reversal of the above.
+       Craps, Roulette and Slots were already pointing at this URL (see each one's
+       store/PLAY_SETUP.md, "Privacy policy: the shared Innovizea URL") while the document
+       named only thirteen card games — three live listings citing a policy that excluded
+       them by its own wording. They are the same shape as the other thirteen: simulated
+       gambling, adult audience, identical AdMob / RevenueCat / Firebase Analytics stack.
+       That is what makes widening correct here and wrong for Thunk. VERIFY the stack before
+       adding a name to this list; do not add one because the name starts with "Card Shark".
+
+       ⚠ The three of them have NO Firestore dependency, so the shared profile below covers
+       THIRTEEN of the sixteen, not all of them. Say so; do not round it up. -->
 
   <article class="prose">
     <h1>Privacy Policy — Card Shark Games</h1>
-    <p class="updated">Last updated: 4 August 2026</p>
+    <p class="updated">Last updated: 22 August 2026</p>
 
     <p>
-      This privacy policy applies to the thirteen-game <strong>Card Shark</strong> family of
+      This privacy policy applies to the sixteen-game <strong>Card Shark</strong> family of
       Android apps published by <strong>Innovizea LLC</strong> ("we", "us") — Card Shark 21,
       Card Shark Ultimate Hold'em, Card Shark Poker, Card Shark 3 Card Poker, Card Shark Baccarat,
       Card Shark Caribbean Stud, Card Shark Criss Cross Poker, Card Shark DJ Wild, Card Shark I Luv
-      Suits, Card Shark Let It Ride, Card Shark Mississippi Stud, Card Shark Pai Gow Poker and Card
-      Shark War. Collectively, "the apps".
+      Suits, Card Shark Let It Ride, Card Shark Mississippi Stud, Card Shark Pai Gow Poker, Card
+      Shark War, Card Shark Craps, Card Shark Roulette and Card Shark Slots. Collectively,
+      "the apps".
     </p>
 
     <div class="callout">
@@ -60,25 +73,33 @@
     <h2>Summary</h2>
     <div class="callout">
       <p>
-        The apps are free-to-play casino card simulations for entertainment and training. They use
+        The apps are free-to-play casino simulations for entertainment and training. They use
         <strong>virtual chips only — there is no real-money gambling and no cash prizes.</strong>
-        We do not require an account, and we do not collect personally identifiable information
-        ourselves.
+        We do not require an account and we never ask you to sign in, and we do not collect
+        personally identifiable information. If you use the shared Card Shark profile, your chips
+        and play record are stored on our servers against an <strong>anonymous</strong> identifier
+        — see <a href="#shared-profile">Shared Card Shark profile</a> below, which also covers how
+        to delete it.
       </p>
     </div>
 
     <h2>Data stored on your device</h2>
     <p>
-      Your bankroll, statistics, settings, and purchase/unlock state are stored <strong>only on your
-      device</strong>. Uninstalling an app removes this local data.
+      Your bankroll, statistics, settings, and purchase/unlock state are stored on your device, and
+      uninstalling an app removes that local data. Settings and Pro/unlock state are
+      <strong>only</strong> ever stored on the device. Your chips, level, cosmetics and play
+      statistics are also stored on our servers if you use the shared Card Shark profile,
+      described below.
     </p>
 
     <h2>Third-party services</h2>
     <p>The apps use the following services, which may collect data under their own privacy policies:</p>
     <ul>
       <li>
-        <strong>Google AdMob</strong> (rewarded video ads) — may collect a device
-        <strong>advertising identifier</strong> (AD_ID) and related data to serve and measure ads.
+        <strong>Google AdMob</strong> — <strong>rewarded video ads</strong>, which you choose to
+        watch in exchange for chips or a temporary unlock, and <strong>interstitial ads</strong>,
+        shown full-screen between hands. Every app serves both; Pro removes all ads. May collect a
+        device <strong>advertising identifier</strong> (AD_ID) and related data to serve and measure ads.
         Ads may be <strong>personalized</strong> where you provide consent through the in-app consent
         screen (shown where required by law, e.g. the EEA, UK, and certain US states); otherwise
         non-personalized ads are served. You can reset or limit your advertising ID in your device
@@ -90,6 +111,13 @@
         entitlement status), not your payment details.
       </li>
       <li>
+        <strong>Google Firebase Authentication and Cloud Firestore</strong> — used only for the
+        shared Card Shark profile, in the thirteen card games. Authentication issues the
+        <strong>anonymous identifier</strong>; Firestore stores the profile described below. No
+        sign-in is involved and no personal information is sent to either. Card Shark Craps,
+        Roulette and Slots do not use these services at all.
+      </li>
+      <li>
         <strong>Google Firebase Analytics</strong> — collects anonymous <strong>app-interaction and
         usage data</strong> (for example, which screens and features are opened, and
         app-performance/crash signals) to help us understand how the apps are used and improve them.
@@ -98,11 +126,58 @@
     </ul>
     <p>
       Consistent with our Google Play <strong>Data safety</strong> declaration, the apps collect
-      <strong>Device or other IDs</strong> (advertising ID), <strong>Purchase history</strong>, and
-      <strong>App interactions</strong> — used for <strong>app functionality, analytics, and
-      advertising/marketing</strong>. We do <strong>not</strong> collect location, contacts, photos,
-      messages, or financial account information, and we do <strong>not</strong> sell your data.
+      <strong>Device or other IDs</strong> (the advertising ID, and the anonymous profile
+      identifier), <strong>Purchase history</strong>, <strong>App interactions</strong>, and —
+      where the shared profile is in use — <strong>other user-generated content</strong> (your chip
+      balance, level, cosmetics and play statistics), used for <strong>app functionality,
+      analytics, and advertising/marketing</strong>. We do <strong>not</strong> collect location,
+      contacts, photos, messages, or financial account information, and we do <strong>not</strong>
+      sell your data.
     </p>
+
+    <h2 id="shared-profile">Shared Card Shark profile</h2>
+    <p>
+      Each Card Shark game normally keeps everything on your device. If you choose to use the
+      <strong>shared Card Shark profile</strong>, one balance and one record are kept for you across
+      every Card Shark game you install, in Google Cloud Firestore. This applies to the thirteen
+      card games; Card Shark Craps, Roulette and Slots have no shared profile.
+    </p>
+    <p>
+      <strong>What is stored:</strong> your virtual chip balance, XP and level, which cosmetic items
+      (card backs and felts) you have unlocked and which are equipped, your daily-bonus streak per
+      game, and per-game play statistics — hands played, wins, losses, pushes, and how often your
+      play matched the strategy the game teaches.
+    </p>
+    <p>
+      <strong>What it is stored against:</strong> an <strong>anonymous identifier</strong> issued by
+      Firebase Authentication. It is a random string. There is no email address, no name, no phone
+      number, no sign-in and no account to create, and it is <strong>not linked to your real-world
+      identity</strong>, to your Google account, or to your advertising ID. It is created on the
+      device and is not recoverable by us or by you if the app is uninstalled.
+    </p>
+    <p>
+      <strong>What we do with it:</strong> run the shared wallet and show you your own record. That
+      is all. It is <strong>not sold, not shared with any third party, not used for advertising, and
+      not used to build a profile of you.</strong> It is stored in a Firebase project operated by
+      Innovizea LLC, encrypted in transit, and is not processed ephemerally — persisting is the
+      entire point of it.
+    </p>
+    <div class="callout">
+      <p>
+        <strong>How to delete it.</strong> Every Card Shark card game has
+        <strong>Settings → Delete Shared Profile</strong>. It removes the whole record — chips,
+        level, cosmetics, streaks and statistics — from our Firestore database, across every Card
+        Shark game, and deletes the anonymous identifier itself, so the next launch starts a new and
+        unrelated one. It cannot be undone, and because there is no sign-in there is no way to
+        recover it afterwards. The game keeps working on its own local save. If you would rather we
+        did it, write to <a href="mailto:support@innovizea.com">support@innovizea.com</a> — but the
+        in-app button is faster and does not require you to identify yourself to us.
+      </p>
+      <p>
+        The button appears in Settings only while a shared profile actually exists. If you have
+        never had one, there is nothing to delete and nothing is shown.
+      </p>
+    </div>
 
     <h2>Children</h2>
     <p>
@@ -112,9 +187,14 @@
 
     <h2>Data security &amp; retention</h2>
     <p>
-      Data transmitted by the above services is encrypted in transit. Because we store no personal
-      data on our own servers, there is no server-side account to delete; on-device data is removed
-      by uninstalling, and the advertising identifier is resettable in your device settings.
+      Data transmitted by the above services is encrypted in transit. We store no personally
+      identifiable information on our own servers — no name, no email address, no sign-in. On-device
+      data is removed by uninstalling, and the advertising identifier is resettable in your device
+      settings. The shared Card Shark profile is the one thing we hold on a server; it is keyed to
+      an anonymous identifier and is deleted, permanently, by
+      <strong>Settings → Delete Shared Profile</strong> in any Card Shark card game, or on request
+      to <a href="mailto:support@innovizea.com">support@innovizea.com</a>. We keep it for as long as
+      it is in use.
     </p>
 
     <h2>Changes</h2>
