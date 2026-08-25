@@ -49,7 +49,7 @@
 
   <article class="prose">
     <h1>Privacy Policy — Card Shark Games</h1>
-    <p class="updated">Last updated: 22 August 2026</p>
+    <p class="updated">Last updated: 24 August 2026</p>
 
     <p>
       This privacy policy applies to the sixteen-game <strong>Card Shark</strong> family of
@@ -75,9 +75,11 @@
       <p>
         The apps are free-to-play casino simulations for entertainment and training. They use
         <strong>virtual chips only — there is no real-money gambling and no cash prizes.</strong>
-        We do not require an account and we never ask you to sign in, and we do not collect
-        personally identifiable information. If you use the shared Card Shark profile, your chips
-        and play record are stored on our servers against an <strong>anonymous</strong> identifier
+        We do not require an account. You can play every game, and use the shared Card Shark profile,
+        without signing in to anything. If you <em>choose</em> to sign in with Google — to share one chip
+        balance across your Card Shark games and to get it back if you change phones — we then hold the
+        <strong>email address</strong> of that Google account, and nothing else about you. Otherwise your
+        chips and play record are stored on our servers against an <strong>anonymous</strong> identifier
         — see <a href="#shared-profile">Shared Card Shark profile</a> below, which also covers how
         to delete it.
       </p>
@@ -149,11 +151,32 @@
       play matched the strategy the game teaches.
     </p>
     <p>
-      <strong>What it is stored against:</strong> an <strong>anonymous identifier</strong> issued by
-      Firebase Authentication. It is a random string. There is no email address, no name, no phone
-      number, no sign-in and no account to create, and it is <strong>not linked to your real-world
-      identity</strong>, to your Google account, or to your advertising ID. It is created on the
-      device and is not recoverable by us or by you if the app is uninstalled.
+      <strong>What it is stored against, by default:</strong> an <strong>anonymous identifier</strong>
+      issued by Firebase Authentication. It is a random string. There is no email address, no name and
+      no phone number, and it is <strong>not linked to your real-world identity</strong>, to your Google
+      account, or to your advertising ID. It is created on the device, and because nothing outside the
+      device points at it, it is not recoverable by us or by you if the app is uninstalled.
+      </p>
+      <p>
+      <strong>If you sign in with Google.</strong> Signing in is <strong>optional</strong> and exists for
+      two things the anonymous identifier cannot do: sharing one chip balance across the Card Shark games
+      you have installed, and getting that balance back if you change or lose your phone. It is offered
+      in <strong>More Card Shark Games → Connect your Card Shark games</strong>, and nothing prompts you
+      to do it.
+      </p>
+      <p>
+      When you do, the profile above is stored against your Google account instead of the anonymous
+      identifier, and we hold <strong>the email address of that account</strong>. We do not receive your
+      Google password, and we do not request access to your contacts, calendar, Drive, or anything else
+      in your Google account. The email address is used to recognise you across your Card Shark games and
+      for nothing else — it is not used for marketing, we do not send email to it, and it is never sold
+      or shared.
+      </p>
+      <p>
+      Signing in on a second game <strong>adds</strong> that game's chips to your shared balance, once.
+      Signing out returns that game to a new anonymous identifier and leaves the shared profile intact
+      for your other games; signing back in returns to it. Pro is a Google Play purchase and is
+      <strong>per game</strong> — signing in here neither moves it nor unlocks it anywhere else.
     </p>
     <p>
       <strong>What we do with it:</strong> run the shared wallet and show you your own record. That
@@ -167,11 +190,12 @@
         <strong>How to delete it.</strong> Every Card Shark card game has
         <strong>Settings → Delete Shared Profile</strong>. It removes the whole record — chips,
         level, cosmetics, streaks and statistics — from our Firestore database, across every Card
-        Shark game, and deletes the anonymous identifier itself, so the next launch starts a new and
-        unrelated one. It cannot be undone, and because there is no sign-in there is no way to
-        recover it afterwards. The game keeps working on its own local save. If you would rather we
-        did it, write to <a href="mailto:support@innovizea.com">support@innovizea.com</a> — but the
-        in-app button is faster and does not require you to identify yourself to us.
+        Shark game, and deletes the identity itself — the anonymous identifier, or the account if you
+        signed in with Google — so the next launch starts a new and unrelated one. It cannot be undone and
+        it cannot be recovered afterwards, by you or by us. The game keeps working on its own local save.
+        If you would rather we did it, write to
+        <a href="mailto:support@innovizea.com">support@innovizea.com</a>, or use
+        <a href="card-shark-delete.html">the deletion page</a> — but the in-app button is faster.
       </p>
       <p>
         The button appears in Settings only while a shared profile actually exists. If you have
@@ -187,11 +211,13 @@
 
     <h2>Data security &amp; retention</h2>
     <p>
-      Data transmitted by the above services is encrypted in transit. We store no personally
-      identifiable information on our own servers — no name, no email address, no sign-in. On-device
-      data is removed by uninstalling, and the advertising identifier is resettable in your device
-      settings. The shared Card Shark profile is the one thing we hold on a server; it is keyed to
-      an anonymous identifier and is deleted, permanently, by
+      Data transmitted by the above services is encrypted in transit. The only personally identifiable
+      information we ever hold is the <strong>email address</strong> of a Google account, and only if you
+      chose to sign in — we never hold a name, a phone number or a password, and if you do not sign in we
+      hold nothing that identifies you at all. On-device data is removed by uninstalling, and the
+      advertising identifier is resettable in your device settings. The shared Card Shark profile is the
+      one thing we hold on a server; it is keyed to an anonymous identifier or to that account, and is
+      deleted, permanently, by
       <strong>Settings → Delete Shared Profile</strong> in any Card Shark card game, or on request
       to <a href="mailto:support@innovizea.com">support@innovizea.com</a>. We keep it for as long as
       it is in use.
