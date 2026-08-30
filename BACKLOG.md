@@ -17,9 +17,11 @@
 ## EPIC-1 · Adopt the new brand
 
 ### SITE-1 · Replace the slab-I favicon with the H·2 mark
-**Status** NEXT · **Owner** CLAUDE · **Size** S
+**Status** DONE · **Owner** CLAUDE · **Size** S
 
-The site still wears `assets/favicon.svg`, the slab "I" — but **innovizea-brand** has settled
+**Done** in `e101bc6`. Tracked from the brand side as BRAND-1.
+
+The site used to wear `assets/favicon.svg`, the slab "I" — but **innovizea-brand** had settled
 on the H·2 mark and the Drydock palette, and this site is one of only two places Innovizea is
 currently visible as a brand at all.
 
@@ -30,23 +32,35 @@ started over.
 Regenerate the raster sizes with `innovizea-brand/render.mjs` rather than by hand — it is
 deterministic and covers all five favicon sizes.
 
-- [ ] `assets/favicon.svg` → the H·2 mark
-- [ ] Regenerate `/favicon.ico` and the apple-touch PNG
-- [ ] Check it at 16px, where the old mark's whole design argument lived
+- [x] `assets/favicon.svg` → the H·2 mark
+- [x] Regenerate `/favicon.ico` and the apple-touch PNG
+- [x] Check it at 16px, where the old mark's whole design argument lived — the on-light accents
+      in the file are the outcome of that check
 
 ### SITE-2 · The race/ update instructions are wrong
-**Status** NEXT · **Owner** CLAUDE · **Size** S
+**Status** DONE · **Owner** CLAUDE · **Size** S
 
-The README says to update `race/index.html` by copying the file in and **re-applying three
-deltas by hand**. That has been superseded: `RocketScooterRace/sync-to-site.mjs` does it
-automatically, lifting the deltas out of the currently-live copy, handling the LF/CRLF
-difference between the two repos, and failing loudly if an anchor is missing.
+**Done 2026-08-29.** Tracked from the game's side as RACE-2 in `race/BACKLOG.md`; one change
+closes both.
 
-It is also **four** deltas now, not three — the download link was added — so anyone following
-the README literally would drop one and not notice.
+The README said to update `race/index.html` by copying the file in and **re-applying three
+deltas by hand**. It was four deltas by then — the download link had been added — so anyone
+following it literally would drop one and not notice.
 
-Point the README at the script. Note that `build-download.mjs` must run afterwards if the game
-changed, or the published zip stops matching the game people just played.
+The fix removed the premise rather than correcting the count. The game was folded in from the
+private `feareater/RocketScooterRace` (RACE-1): `race/index.html` **is** the game now, there
+is no copy to copy from, and `sync-to-site.mjs` is deleted. The deltas survive only as the
+`SITE-ONLY BITS` comment inside `index.html`, and they now run the other way — stripped out
+for the offline download instead of applied in for the site.
+
+- [x] Rewrite the README section: the file is the game, not a vendored copy
+- [x] State that `race-to-the-moon-local.zip` is a committed build artifact, and that editing
+      the game does not rebuild it
+- [x] Give the two commands — `node build-download.mjs` and `--check`, which reads the
+      published zip back and compares it entry-by-entry against a fresh build
+
+The game keeps its own backlog at `race/BACKLOG.md`, which the Backlog Board reads as a
+separate project. Race items live there, not here.
 
 ---
 
