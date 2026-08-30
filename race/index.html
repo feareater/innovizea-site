@@ -503,19 +503,21 @@
     <aside class="sidebar">
       <h1>Race to the Moon</h1>
       <p class="subtitle">Pick a winner — first to the finish wins.</p>
-      <!-- DELTAS vs the RocketScooterRace repo (4). Keep all four when re-copying:
-           1. This back link. The page is full-screen with overflow:hidden and has no other
-              nav, so without it a visitor from the homepage is stranded.
-           2. The <title> and favicon block in <head>.
-           3. The product name. "Race to the Moon" replaces "Pick a Winner!" here, and the
-              old subtitle folds into the new one so the page still says what it is FOR.
-              The name is literal on the default theme: Cosmos sets the finish to
-              `kind: 'pixelMoon'`, so the moon really is the finish line.
-           4. The download link below. The chat-join lobby is in this file but hides itself
-              on a public host (see chatUiEnabled) — TikTok needs a bridge running on the
-              streamer's own machine, and we should never ask a visitor for a YouTube API
-              key. So the feature ships as a download instead. Rebuild that zip with
-              `node build-download.mjs` in the RocketScooterRace repo. -->
+      <!-- SITE-ONLY BITS (3). This file is the game; there is no other copy to keep in
+           step. `build-download.mjs` strips or rewrites each of these when it builds the
+           offline zip, and fails loudly if any anchor moves:
+             1. The <title> and the three root-absolute favicon <link>s in <head>. They
+                would 404 from a file:// copy, so the download drops them.
+             2. This back link. The page is full-screen with overflow:hidden and has no
+                other nav, so without it a visitor from the homepage is stranded. The
+                offline copy points at the absolute https://innovizea.com/race/ instead.
+             3. The download link below. The chat-join lobby is in this file but hides
+                itself on a public host (see chatUiEnabled) — TikTok needs a bridge on the
+                streamer's own machine, and we should never ask a visitor for a YouTube
+                API key. So the feature ships as a download, and the download has no
+                download link of its own.
+           The name is literal on the default theme: Cosmos sets the finish to
+           `kind: 'pixelMoon'`, so the moon really is the finish line. -->
       <p style="margin:-8px 0 12px;font-size:12px;">
         <a href="/" style="color:#9aa8cc;text-decoration:none;">&larr; innovizea.com</a>
       </p>

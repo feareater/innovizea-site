@@ -11,7 +11,7 @@ consulting.html     Salesforce consulting practice
 games.html          the 13-game Card Shark hub, links to each Play listing
 thunk.html          Thunk: Shape Fit Puzzle
 choptick.html       pointer to choptick.app (Choptick's real home)
-race/index.html     Race to the Moon — the game itself, playable at /race/
+race/               Race to the Moon — the game, playable at /race/; see race/README.md
 policies.html       privacy hub — one card per product, links to each policy
 privacy.html        ⚠ Card Shark privacy policy  — REGISTERED URL, DO NOT MOVE
 thunk-privacy.html  Thunk privacy policy (Thunk stores different things)
@@ -23,25 +23,42 @@ assets/icons/       15 app icons, 192px WebP
 CNAME               innovizea.com (GitHub Pages apex)
 ```
 
-## Race to the Moon is a vendored copy
+## Race to the Moon lives here
 
-`race/index.html` is copied from **github.com/feareater/RocketScooterRace** (private, no Pages
-of its own). It is one self-contained file — no external requests, no build, `localStorage`
-only — which is why it can simply be dropped in and played at `/race/`.
+`race/index.html` **is** the game — one self-contained file, no build step, no external
+requests, `localStorage` only. Edit it in place; the site serves it directly at `/race/`.
 
-⚠️ **The product was renamed to "Race to the Moon" on 2026-08-04** (Jeff's call). The repo,
-the folder and the `/race/` path still carry the old name; only the user-facing name changed.
-The name is literal on the default theme — Cosmos sets the finish to `kind: 'pixelMoon'`, so
-the moon really is the finish line.
+It used to be a vendored copy of the private `feareater/RocketScooterRace`, kept in step by a
+`sync-to-site.mjs` that re-applied four site-only deltas on every copy. That was folded in on
+2026-08-29 and the old repo archived — it published all of its own contents anyway (the game
+through view-source; the TikTok helper, the setup guide and the game through the public
+download), so the split bought no privacy and cost a sync ritual. **Ignore any older
+instruction to copy the file in and re-apply deltas by hand: there is nothing to copy from,
+and the deltas now live only in `index.html`, marked `SITE-ONLY BITS`.**
 
-**That repo is the source of truth.** To update: `cp` the file in, then re-apply the three
-deltas, all marked with comments in the file — the `<title>` + favicon block in `<head>`, the
-`← innovizea.com` back link under the sidebar subtitle, and the renamed `<h1>`/subtitle. The
-page is full-screen with `overflow: hidden`, so without that link a visitor has no way back.
+⚠️ **`race/race-to-the-moon-local.zip` is a committed build artifact.** It is the offline
+package that the game's own "Download the local version" link points at, and editing the game
+does **not** rebuild it — skipping this ships a download that does not match what the visitor
+just played, a difference nobody notices until someone reports a bug that was already fixed.
+After any change under `race/`:
 
-Note the site repo is **public** and RocketScooterRace is private. Hosting the game here
-publishes its source — which is inherent to any client-side browser game (view-source shows
-it to every player regardless), not a consequence of this arrangement.
+```bash
+cd race
+node build-download.mjs           # rebuild and publish the zip in place
+node build-download.mjs --check   # or just assert the published zip is still current
+```
+
+`--check` reads the zip back and compares every entry byte-for-byte against a fresh build, so a
+forgotten rebuild fails loudly rather than silently.
+
+The product was renamed to **"Race to the Moon"** on 2026-08-04 (Jeff's call). The `/race/`
+path keeps the older, shorter name deliberately — it is a good URL for this game, and per the
+rule below, paths are the expensive thing to move. The name is literal on the default theme:
+Cosmos sets the finish to `kind: 'pixelMoon'`, so the moon really is the finish line.
+
+`race/README.md` covers the rest — where the YouTube API key lives (there is no config file
+and adding one would break the product), why the chat lobby hides itself on a public host, and
+the entrant fairness rules that must not be "simplified".
 
 ## The site icon
 

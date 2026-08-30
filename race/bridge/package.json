@@ -1,0 +1,18 @@
+{
+  "name": "rocket-scooter-race-bridge",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Local helper that relays TikTok LIVE chat into Rocket Scooter Race, and serves the game over http://localhost so the YouTube API call works too.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "tiktok-live-connector": "^2.4.3",
+    "ws": "^8.18.0"
+  }
+}
