@@ -28,8 +28,20 @@
   </header>
 
   <!-- Choptick runs on its own domain with its own landing page, terms and privacy policy.
-       This page is a POINTER, not a second marketing site — anything said twice will drift.
-       Keep product detail on choptick.app and leave this short. -->
+       Product detail, pricing and legal all live on choptick.app; this page LINKS to them
+       and does not restate them, because anything said twice drifts.
+
+       ⭐ BUT IT IS ALSO THE PROVING GROUND FOR CHOPTICK'S AD CREATIVE (Jeff, 2026-09-03):
+       *"Since very few people come to that page, I want it to be a good testing ground."*
+       Low traffic is the feature — a banner can be judged in place, at real size, on a real
+       page, before it is put anywhere that costs money. So the two galleries below are
+       DELIBERATE and an earlier instruction to "keep this short" no longer applies to them.
+
+       ⛔ EVERY IMAGE HERE IS SHOT ON THE MARKETING DEMO PROFILE, WHICH NAMES NO PROP FIRM.
+       Choptick's `scripts/seed-marketing.js` + `tools/capture-marketing-stills.mjs` produce
+       the screenshots and `tools/marketing-banners.html` the creative. Do not drop in an
+       image from anywhere else: the store profile names four real firms, and Jeff's standing
+       rule is that no firm is named until there is a partnership. -->
 
   <section class="hero">
     <p class="eyebrow">Choptick · web app</p>
@@ -48,6 +60,85 @@
       <span class="badge">Live prop rule meters</span>
     </div>
   </section>
+
+  <h2 class="section">Inside Choptick</h2>
+  <div class="ck-shots">
+
+    <figure class="wide">
+      <img src="assets/choptick/shots/prop-cockpit.webp" width="1600" height="1000" loading="lazy" decoding="async"
+           alt="Choptick's prop-firm page: six summary tiles, three at-risk alerts naming accounts by size and phase, and a table of accounts showing drawdown available, trailing-lock progress and commission per contract.">
+      <figcaption><b>The prop-firm cockpit</b>Every eval and funded account against its own plan — drawdown, daily loss, consistency and payout eligibility, with alerts before a rule breaks rather than after.</figcaption>
+    </figure>
+
+    <figure>
+      <img src="assets/choptick/shots/dashboard.webp" width="1600" height="668" loading="lazy" decoding="async"
+           alt="Choptick's dashboard: net P&amp;L, profit factor, average winning and losing trade, win-rate donut, trades taken, expectancy per trade and risk-to-reward.">
+      <figcaption><b>The dashboard</b>Net, profit factor, expectancy and risk-to-reward over any range or account — the numbers that say whether the edge is real.</figcaption>
+    </figure>
+
+    <figure>
+      <img src="assets/choptick/shots/calendar.webp" width="1600" height="1000" loading="lazy" decoding="async"
+           alt="Choptick's monthly P&amp;L calendar for August 2026: sixteen trading days coloured green or red, with the month's net, trades, win rate, profit factor, green days, best day and average per day.">
+      <figcaption><b>The month, day by day</b>Every trading day green or red at a glance, with the month's totals above it.</figcaption>
+    </figure>
+
+    <figure class="wide">
+      <img src="assets/choptick/shots/trade-log.webp" width="1600" height="1000" loading="lazy" decoding="async"
+           alt="Choptick's trade log: rows of futures trades with date, symbol, setup, direction, average entry and exit, contracts, P&amp;L, result and the account and phase each trade is tagged to.">
+      <figcaption><b>The trade log</b>Fills arrive from TradingView or NinjaTrader, pair themselves into trades, and tag to the right live, paper or prop account.</figcaption>
+    </figure>
+
+    <figure class="wide">
+      <img src="assets/choptick/shots/reflect.webp" width="1600" height="868" loading="lazy" decoding="async"
+           alt="Choptick's past-lessons feed: five dated reflections, each with a discipline score out of five and the lesson the trader wrote that day.">
+      <figcaption><b>The reflection habit</b>One lesson a session, scored for discipline, kept where you will actually read it again.</figcaption>
+    </figure>
+
+  </div>
+
+  <h2 class="section">Ad creative &mdash; in testing</h2>
+  <div class="callout">
+    <p>
+      Draft banners for Choptick, put here to be looked at before they are put anywhere
+      that costs money. <strong>No prop firm is named</strong> — accounts are labelled by
+      size and phase, which is how traders talk anyway — and <strong>every figure is
+      invented</strong>, on a demo profile built for the purpose. The product surfaces
+      themselves are reproduced faithfully.
+    </p>
+  </div>
+  <div class="ck-banners">
+
+    <figure>
+      <img src="assets/choptick/banners/b1-prop.webp" width="1200" height="628" loading="lazy" decoding="async"
+           alt="Banner: &ldquo;Know the rule before you break it.&rdquo; Three prop accounts showing drawdown room, daily loss used and winning days, chipped At risk, Watch and Payout ready.">
+      <figcaption>Pillar 1 &mdash; every prop account in one place</figcaption>
+    </figure>
+
+    <figure>
+      <img src="assets/choptick/banners/b2-autolog.webp" width="1200" height="628" loading="lazy" decoding="async"
+           alt="Banner: &ldquo;Stop logging trades.&rdquo; Three MNQ fills resolving into a single paired trade worth plus $306.">
+      <figcaption>Pillar 2 &mdash; fills arrive on their own</figcaption>
+    </figure>
+
+    <figure>
+      <img src="assets/choptick/banners/b3-dashboard.webp" width="1200" height="628" loading="lazy" decoding="async"
+           alt="Banner: &ldquo;Not another trade list.&rdquo; Four tiles showing net P&amp;L, profit factor, expectancy and risk-to-reward.">
+      <figcaption>Pillar 3 &mdash; a dashboard that answers something</figcaption>
+    </figure>
+
+    <figure>
+      <img src="assets/choptick/banners/b4-reflect.webp" width="1200" height="628" loading="lazy" decoding="async"
+           alt="Banner: &ldquo;The journal is the point.&rdquo; A dated reflection with a four-out-of-five discipline score.">
+      <figcaption>Pillar 4 &mdash; the journal is the point</figcaption>
+    </figure>
+
+    <figure>
+      <img src="assets/choptick/banners/b5-pricing.webp" width="1200" height="628" loading="lazy" decoding="async"
+           alt="Banner: &ldquo;Three accounts free. Forever.&rdquo; A free plan at $0 for three trading accounts beside a Pro plan at $24.99 a month with a fourteen-day trial and no card.">
+      <figcaption>Pricing &mdash; the no-card trial is the strongest line</figcaption>
+    </figure>
+
+  </div>
 
   <h2 class="section">Where things live</h2>
   <div class="callout">

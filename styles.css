@@ -500,3 +500,61 @@ footer a:hover { color: var(--text); text-decoration: underline; }
   * { transition: none !important; }
   .product:hover, .game a:hover, .cta:hover, .gamecard .play:hover { transform: none; }
 }
+
+/* ---------- product screenshots + ad creative (choptick.html) ----------
+   Added for SITE-9. choptick.html is the LOW-TRAFFIC page, which is exactly why
+   creative is tried out there first — see the comment at the top of that file.
+
+   Both grids are plain figures rather than cards: the images already carry
+   their own panel, border and shadow, so wrapping them in another one gives a
+   frame inside a frame.
+
+   ⛔ NAMED `ck-` FOR A REASON. These were first written as `.shots`/`.banners`,
+   which COLLIDED with the `.shots` scroll-snap strip games.html has used for
+   thirteen games since long before this. Same specificity, mine appended later,
+   so mine silently won: every game's screenshot strip turned from a sideways
+   scroller into a grid of full-width images. Nothing errored and choptick.html
+   looked merely wrong rather than broken. Scope a new component to its product
+   before adding it to a stylesheet thirteen pages share. */
+.ck-shots, .ck-banners {
+  display: grid;
+  gap: 22px;
+  margin: 22px 0 8px;
+}
+/* 380px, not 320: at the 1080px wrap that yields TWO columns, so the two
+   half-width shots fill their row. 320px yields three and leaves a hole. */
+.ck-shots { grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); }
+.ck-banners { grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); }
+
+.ck-shots figure, .ck-banners figure { margin: 0; }
+
+.ck-shots img, .ck-banners img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  /* The captures are of a DARK app on a dark page, so without this the panel
+     edge disappears into the background and the shot reads as part of the page
+     rather than as a picture of a different product. */
+  background: #0e1219;
+}
+.ck-banners img { border-radius: 10px; }
+
+.ck-shots figcaption, .ck-banners figcaption {
+  margin-top: 10px;
+  font-size: 14px;
+  color: var(--dim);
+  line-height: 1.5;
+}
+.ck-shots figcaption b, .ck-banners figcaption b {
+  display: block;
+  color: var(--text);
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 2px;
+}
+
+/* A full-width figure for a shot whose detail does not survive a half-width
+   column — the trade log is a dense table and is unreadable at 340px. */
+.ck-shots figure.wide { grid-column: 1 / -1; }

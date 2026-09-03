@@ -173,3 +173,43 @@ one someone reads. The same reasoning is why the privacy policy is linked rather
 ⚠ **This page will go stale again**, because it describes a product that ships from another
 repo. When Choptick's mobile apps leave testing, this is the file to change — nothing here
 learns it automatically.
+
+### SITE-9 · Screenshots and ad creative on the Choptick page
+**Status** DONE · **Owner** CLAUDE · **Size** M
+
+**Done 2026-09-03.** Jeff: *"Since very few people come to that page, I want it
+to be a good testing ground."* Five product screenshots and five 1200×628 draft
+banners now sit on `choptick.html`, in two labelled sections.
+
+⭐ **Low traffic is the whole point**, and it is a genuinely good idea: creative
+can be judged in place, at real size, on a real page, before it goes anywhere
+that costs money. The banners are marked *in testing* on the page so a visitor
+is not misled about what they are looking at.
+
+- [x] `assets/choptick/shots/` — five WebP captures of the live app
+- [x] `assets/choptick/banners/` — five WebP banners, one per message pillar
+- [x] `.ck-shots` / `.ck-banners` in `styles.css`; lazy-loaded, real `alt` text
+- [x] Verified at 1280px and 420px — no horizontal overflow, nothing broken
+
+⛔ **Every image is shot on Choptick's marketing demo profile, which names no
+prop firm and invents every figure.** That is a standing rule of Jeff's, not a
+detail of this ticket: no firm is named until there is a partnership. The
+generators live in the Choptick repo (`tools/capture-marketing-stills.mjs`,
+`tools/marketing-banners.html`) — **do not drop in an image from anywhere else**,
+because the Play-store demo profile names four real firms.
+
+⛔ **`.shots` WAS ALREADY TAKEN, AND TAKING IT BROKE games.html.** The first
+version of this used `.shots`/`.banners`, which collide with the `.shots`
+scroll-snap strip thirteen game sections have used since long before it. Same
+specificity, appended later, so the new rules silently won and every game's
+screenshot strip became a grid of full-width images. **Nothing errored** — the
+game page simply looked wrong, and choptick.html looked fine. Hence `ck-`.
+Scope a new component to its product before adding it to a stylesheet that
+thirteen pages share.
+
+⚠ **The pricing banner puts $24.99 on this site**, which SITE-8 deliberately kept
+off it. That was a decision about page COPY that could silently drift; the price
+is now inside an image, where it cannot be grepped and will not be noticed when
+it changes. It is here because pricing is the strongest single asset in the ad
+kit and the point of the page is to test the kit — but if the price moves, this
+image is the thing that will be wrong, and nothing will point at it.
