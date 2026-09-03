@@ -137,3 +137,39 @@ about a package id. Generating the list from the `app.json` files would make tha
 ⚠ There is no `sharp` or ImageMagick on this machine. The working downscale recipe is headless
 Chrome via `puppeteer-core` (borrow `Sequence Puzzle/tools/browser.mjs`, which needs
 `pipe: true` because TCP to the devtools port is blocked here) plus `canvas.toDataURL('image/webp')`.
+
+### SITE-8 · The Choptick pages claimed a private beta and an Android app
+**Status** DONE · **Owner** CLAUDE · **Size** S
+
+**Done 2026-09-03** in `cc498fb`. Two claims on `choptick.html`, and the Choptick cards on
+`index.html` and `policies.html`, had gone stale in the direction that costs the most: they
+told a reader not to bother.
+
+**"Private beta"** — signup has been open for some time. The product's own deployment answers
+this, and is the only thing that should be believed about it:
+
+```
+curl -s https://choptick.app/api/auth/config   →  {"signupGated":false}
+```
+
+Checkout is configured in production too, so Choptick is live and taking payment. A badge
+reading "Private beta" on the one page linking to it is worse than no page.
+
+**"Web & Android"** — the Android and iOS builds are in testing, not something a reader can go
+and install. choptick.app says so on its own mobile section, so this site was the only place
+claiming otherwise.
+
+- [x] Badges → "Open for signup", "Free plan to start", keeping the two feature badges
+- [x] Card kind → "Trading journal · web" on `index.html` and `policies.html`; eyebrow → "web app"
+- [x] The mobile position moved into "Where things live", with a `mailto` for access
+- [x] Verified against the live site after the Pages build, not just locally
+
+⚠ **No price is repeated on this site, deliberately.** `choptick.html` is a pointer, as the
+comment at the top of it says — the product, its pricing, its terms and its privacy policy all
+live on choptick.app. Anything stated in two places drifts, and the copy nobody edits is the
+one someone reads. The same reasoning is why the privacy policy is linked rather than copied
+(SITE-3).
+
+⚠ **This page will go stale again**, because it describes a product that ships from another
+repo. When Choptick's mobile apps leave testing, this is the file to change — nothing here
+learns it automatically.
