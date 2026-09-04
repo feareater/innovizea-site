@@ -30,7 +30,24 @@
   <!-- JEFF: Thunk is in Play INTERNAL TESTING, so there is deliberately no store link on
        this page — a play.google.com/store/apps/details?id=com.innovizea.thunk URL 404s for
        anyone outside the tester list. When it reaches production, add the .cta below the
-       hero and drop the "in testing" badge. -->
+       hero and drop the "in testing" badge.
+
+       THE DEMO IS THE EXCEPTION, and it is why this page now has a button. It needs no
+       store listing and no install: /thunk/play/ is the real game, seven boards of it,
+       running in the browser. So there is something to DO here while the listing is
+       private, which is the whole reason the demo was built.
+
+       That folder is a BUILD ARTIFACT copied in from the Thunk repo, not source. Rebuild
+       it there with `npm run build:site`; `npm run check:site` proves this copy matches a
+       fresh build. Do not hand-edit anything under /thunk/play/. -->
+
+  <style>
+    /* One page, one rule - kept off the shared stylesheet, which five products use.
+       `--dim` is the site's own muted-text token; there is no `--muted` here, and an
+       undefined var() with no fallback INHERITS rather than falling back, which is how
+       a whole screen goes flat white in the Thunk app. Use the token that exists. */
+    .demo-note { margin: 10px 0 0; font-size: 13px; color: var(--dim); }
+  </style>
 
   <section class="hero">
     <p class="eyebrow">Thunk: Shape Fit Puzzle · Android</p>
@@ -41,7 +58,18 @@
       perfect answer, because the board was built by tiling it with the very shapes you
       have in hand.
     </p>
+    <!-- The demo, in the hero, above the badges: it is the only thing on this page
+         somebody can act on today, so it is the first thing they should meet. Styled
+         with Thunk's own accent rather than the site blue, the same way the headline
+         is — a product page should look like its product. -->
+    <a class="cta" style="background: var(--tk-accent); color: #0B0714"
+       href="thunk/play/">Play it in your browser</a>
+    <p class="demo-note">
+      Seven boards, free, no install — the real game, not a mock-up.
+    </p>
+
     <div class="badges">
+      <span class="badge">Playable demo</span>
       <span class="badge">In testing</span>
       <span class="badge"><strong>20</strong> rules</span>
       <span class="badge">Endless campaign</span>

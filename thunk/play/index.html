@@ -1,0 +1,1307 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <!-- The colour Android paints the status bar. It was near-white, from a
+         palette this game has not had since the page became a saturated
+         gradient — so the one strip of chrome the player cannot theme was the
+         one thing on screen that did not match. This is the gradient's own top
+         stop. -->
+    <meta name="theme-color" content="#7fd7fb" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <title>Thunk</title>
+    <!--
+      THE ERROR TRAP, AND IT IS INLINE FOR THE SAME REASON THE BOOT SCREEN IS.
+
+      This has to run before the bundle, because the failure it exists to catch
+      is the bundle not running. A module that throws while parsing produces a
+      white screen and nothing else; a trap installed inside that module is a
+      trap that was never installed.
+
+      WHY THIS EXISTS AT ALL. The iOS testers are two people with a TestFlight
+      link, and nobody on this side has a Mac — so the Simulator and Safari Web
+      Inspector are both out, and a WKWebView bug arrives as a sentence from
+      somebody else. Card Shark taught this the expensive way: a ReferenceError
+      on every dice roll survived six clean-looking automated runs and a
+      690-assertion suite, and what eventually found it was a DOM-based trap,
+      because the isolated world the automation ran in could not see the page's
+      exceptions. The lesson generalises past automation — an error nobody can
+      observe is an error nobody can fix.
+
+      IT MUST NEVER THROW. Everything is wrapped, the buffer is bounded, and a
+      failure to persist is ignored: a diagnostic that can break the app is
+      worse than no diagnostic. It stores no player data — a message, a source
+      location and a clock reading.
+    -->
+    <script>
+      (function () {
+        var MAX = 40;
+        var KEY = 'thunk.diag.v1';
+        var log = [];
+        try {
+          var kept = globalThis.localStorage.getItem(KEY);
+          if (kept) log = JSON.parse(kept).slice(-MAX);
+        } catch (e) {
+          log = [];
+        }
+        // The page's own hook. `diagnostics.ts` reads it; nothing writes to it
+        // but this file.
+        globalThis.__thunkDiag = log;
+
+        var writing = false;
+        function persist() {
+          // COALESCED. A loop that errors sixty times a second would otherwise
+          // be sixty synchronous localStorage writes, which is its own hang —
+          // and the bug being recorded is usually exactly that kind of loop.
+          if (writing) return;
+          writing = true;
+          globalThis.setTimeout(function () {
+            writing = false;
+            try {
+              globalThis.localStorage.setItem(KEY, JSON.stringify(log));
+            } catch (e) {
+              /* Full, blocked, or private. The in-memory copy still works. */
+            }
+          }, 250);
+        }
+
+        function add(kind, text, where) {
+          try {
+            var last = log[log.length - 1];
+            // REPEATS ARE COUNTED, NOT LISTED. One bug firing on every frame
+            // would otherwise push everything that led up to it out of a
+            // forty-entry buffer, which is precisely the context needed to
+            // understand it.
+            if (last && last.k === kind && last.t === text && last.w === where) {
+              last.n = (last.n || 1) + 1;
+              persist();
+              return;
+            }
+            log.push({
+              k: kind,
+              t: String(text).slice(0, 300),
+              w: String(where || '').slice(0, 120),
+              at: new Date().toISOString(),
+            });
+            while (log.length > MAX) log.shift();
+            persist();
+          } catch (e) {
+            /* Never throw from the thing that records throwing. */
+          }
+        }
+        globalThis.__thunkDiagAdd = add;
+
+        globalThis.addEventListener('error', function (event) {
+          // TWO DIFFERENT EVENTS SHARE THIS NAME. A failed <img>/<script> load
+          // fires `error` on the ELEMENT with no `message`, and it bubbles to
+          // here — worth recording, since a missing asset is one of the ways a
+          // WebView shows a blank screen, but it is not an exception.
+          if (event.message) {
+            add('error', event.message, event.filename + ':' + event.lineno);
+          } else if (event.target && event.target.src) {
+            add('load', 'failed to load', event.target.src);
+          }
+        }, true);
+
+        globalThis.addEventListener('unhandledrejection', function (event) {
+          var why = event.reason;
+          add('promise', (why && (why.stack || why.message)) || String(why), '');
+        });
+
+        // console.error is WRAPPED, not replaced: the original still runs, so
+        // `chrome://inspect` on Android shows exactly what it always did.
+        try {
+          var real = console.error;
+          console.error = function () {
+            try {
+              add('console', Array.prototype.join.call(arguments, ' '), '');
+            } catch (e) {
+              /* fall through to the real one regardless */
+            }
+            real.apply(console, arguments);
+          };
+        } catch (e) {
+          /* A console that cannot be wrapped is a console left alone. */
+        }
+      })();
+    </script>
+    <!--
+      THE LOADING SCREEN IS INLINE, and it has to be.
+
+      A stylesheet or a script is a second request: the WebView would show its
+      own blank window until the bundle parsed, which is exactly the white flash
+      this exists to remove. Everything the boot screen needs — the gradient,
+      the marks, the wordmark — is in this file, so the first paint after the
+      Android splash is already branded.
+
+      TWO BEATS: the studio, then the game. Jeff, after seeing the competition:
+      "they have a screen that shows the name of company and then a loading
+      screen." That is two cards, not one, and the studio card is the one every
+      small app skips. Shared with every other Innovizea app — this is a copy of
+      `innovizea-brand/boot.css`, inlined for the reason above; the timings live
+      in `boot.ts`.
+    -->
+    <style>
+      #innovizea-boot {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        display: grid;
+        font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+        transition: opacity 420ms ease;
+      }
+      #innovizea-boot.boot-gone { opacity: 0; pointer-events: none; }
+      /* The beats stack in one grid cell, so neither reflows the other when it
+         swaps and there is never a frame of page between them. Each paints its
+         own full-bleed ground — see below for why that matters. */
+      .boot-beat {
+        grid-area: 1 / 1;
+        display: grid;
+        place-content: center;
+        justify-items: center;
+        gap: 14px;
+        opacity: 0;
+        transform: translateY(6px);
+        transition: opacity 400ms ease, transform 400ms ease;
+        pointer-events: none;
+      }
+      .boot-beat.on { opacity: 1; transform: none; }
+
+      /* ── BEAT ONE IS NOT THEMEABLE. ────────────────────────────────────────
+         This screen used to be painted in Thunk's own pastel gradient, which
+         defeated the entire point of having it: the studio beat exists to be
+         RECOGNISED across apps, and if every app recolours it there is nothing
+         left to recognise — you have built fifteen different studio cards.
+         These are the Drydock values and they are the same in every Innovizea
+         app. Do not tint them to match the game. ─────────────────────────── */
+      .boot-beat--studio { background: #12151B; color: #E6EAF0; }
+      .boot-mark { width: 84px; height: 84px; overflow: visible; }
+      /* The mark assembles — two groups sliding into lock along the diagonal,
+         which is the mark's own idea. That motion is what earns a two-second
+         hold; the problem with a long hold was never length, it was emptiness. */
+      .boot-beat--studio.on .boot-mark .ga { animation: lock-a 620ms cubic-bezier(.2,.9,.3,1) both; }
+      .boot-beat--studio.on .boot-mark .gb { animation: lock-b 620ms cubic-bezier(.2,.9,.3,1) 90ms both; }
+      @keyframes lock-a { from { transform: translate(-7px,-7px); opacity: 0 } to { transform: none; opacity: 1 } }
+      @keyframes lock-b { from { transform: translate(7px,7px); opacity: 0 } to { transform: none; opacity: 1 } }
+
+      /* Beat two is where Thunk's own colours belong. */
+      .boot-beat--app {
+        background: linear-gradient(163deg, #7fd7fb 0%, #9ec2ff 22%, #bfaaff 45%, #ffabd4 70%, #ffce93 100%);
+        color: #1b2440;
+      }
+      .boot-studio { font-size: 15px; font-weight: 800; letter-spacing: 0.42em; margin-left: 0.42em; }
+      .boot-tagline {
+        font-size: 11px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        opacity: 0.5;
+        margin-left: 0.16em;
+      }
+      .boot-tiles { display: grid; grid-template-columns: repeat(4, 26px); grid-template-rows: repeat(3, 26px); gap: 4px; }
+      .boot-tiles i {
+        border-radius: 7px;
+        /* Each cell on its own beat, so the shape ASSEMBLES rather than sitting
+           there. A static logo on a loading screen reads as a frozen app. */
+        animation: boot-drop 1.6s ease-in-out infinite;
+      }
+      @keyframes boot-drop {
+        0%, 70%, 100% { opacity: 1; transform: none; }
+        35% { opacity: 0.3; transform: translateY(-5px); }
+      }
+      .boot-name { font-size: 30px; font-weight: 800; letter-spacing: 0.22em; margin-left: 0.22em; }
+      .boot-by { font-size: 10.5px; font-weight: 700; letter-spacing: 0.3em; opacity: 0.5; margin-left: 0.3em; }
+      .boot-note { font-size: 12px; opacity: 0.65; min-height: 1.2em; margin: 0; }
+      @media (prefers-reduced-motion: reduce) {
+        .boot-tiles i { animation: none; }
+        .boot-beat { transform: none; transition: opacity 300ms ease; }
+      }
+    </style>
+    <script type="module" crossorigin src="./assets/index-1jlzQm9c.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-g_VvcLpu.css">
+  </head>
+  <body>
+    <!--
+      Shown until the first board is ready. Driven by `boot.ts` — see there for
+      why it lingers rather than vanishing the instant it can.
+    -->
+    <div id="innovizea-boot">
+      <!-- Lit in the markup, not by script: the bundle has not parsed at first
+           paint, and an empty gradient is what this screen exists to avoid. -->
+      <div class="boot-beat boot-beat--studio on">
+        <svg class="boot-mark" viewBox="0 0 24 24" aria-hidden="true">
+          <g class="ga" fill="#8FA3E8">
+            <rect x="1.6" y="1.6" width="5.4" height="5.4" rx="1.5"/>
+            <rect x="8.4" y="1.6" width="5.4" height="5.4" rx="1.5"/>
+            <rect x="1.6" y="8.4" width="5.4" height="5.4" rx="1.5"/>
+          </g>
+          <g class="gb" fill="#2FB8AA">
+            <rect x="17" y="10.2" width="5.4" height="5.4" rx="1.5"/>
+            <rect x="10.2" y="17" width="5.4" height="5.4" rx="1.5"/>
+            <rect x="17" y="17" width="5.4" height="5.4" rx="1.5"/>
+          </g>
+        </svg>
+        <div class="boot-studio">INNOVIZEA</div>
+        <div class="boot-tagline">Serious tools. Real play.</div>
+      </div>
+      <div class="boot-beat boot-beat--app">
+        <div class="boot-tiles" aria-hidden="true">
+          <i style="background:#0e6bff;animation-delay:0ms"></i>
+          <i style="background:#0e6bff;animation-delay:80ms"></i>
+          <i style="background:#00d15e;animation-delay:160ms"></i>
+          <i style="background:transparent;animation:none"></i>
+          <i style="background:#0e6bff;animation-delay:240ms"></i>
+          <i style="background:#0e6bff;animation-delay:320ms"></i>
+          <i style="background:#00d15e;animation-delay:400ms"></i>
+          <i style="background:transparent;animation:none"></i>
+          <i style="background:transparent;animation:none"></i>
+          <i style="background:transparent;animation:none"></i>
+          <i style="background:#00d15e;animation-delay:480ms"></i>
+          <i style="background:#00d15e;animation-delay:560ms"></i>
+        </div>
+        <div class="boot-name">THUNK</div>
+        <div class="boot-by">BY INNOVIZEA</div>
+        <p class="boot-note">Building today&rsquo;s boards&hellip;</p>
+      </div>
+    </div>
+
+    <div class="app">
+            <!-- The home screen. Shown first, and reachable from any level.
+           A campaign with no way back was fine when there was nothing to go back
+           FOR; scoring by TIME made every finished level a record to beat. -->
+      <section id="home" class="home" hidden>
+        <div class="home-top">
+          <!-- Seven taps here reveal developer mode. `devmode.ts`. -->
+          <h1 id="home-title" class="home-title">THUNK</h1>
+          <!--
+            WHAT YOU HAVE TO SPEND, on the screen you spend it from.
+            The balance lived in the Store tab head and nowhere else, so the
+            one number a player might act on was behind a tab. Jeff: "Coins on
+            Home Screen." It opens the Store, because a balance you cannot spend
+            from is a decoration.
+          -->
+          <button id="home-coins" class="home-coins" type="button" aria-label="Coins — open the Store"><span id="home-coins-n" class="home-coins-n">0</span></button>
+          <button id="settings-toggle" class="gear" type="button" aria-expanded="false" aria-controls="home-settings" aria-label="Settings"><svg class="gear-i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M12 3.4v2.2M12 18.4v2.2M20.6 12h-2.2M5.6 12H3.4M18.1 5.9l-1.6 1.6M7.5 16.5l-1.6 1.6M18.1 18.1l-1.6-1.6M7.5 7.5L5.9 5.9"/></svg></button>
+        </div>
+        <div id="home-settings" class="home-settings" hidden>
+          <button id="setting-sound" class="setting" type="button" aria-pressed="true">
+            <span class="setting-name">Sound</span>
+            <span id="setting-sound-value" class="setting-value">On</span>
+          </button>
+          <button id="setting-music" class="setting" type="button" aria-pressed="false">
+            <span class="setting-name">Music</span>
+            <span id="setting-music-value" class="setting-value">Off</span>
+          </button>
+          <button id="setting-tutorial" class="setting" type="button">
+            <span class="setting-name">How to play</span>
+            <span class="setting-value">Replay</span>
+          </button>
+          <!--
+            THE SECOND TUTORIAL. `tutorial.ts` is four boards about your thumb
+            and is deliberately that short. Everything the game grew after it —
+            the Daily, the ladders, three currencies, seasons, friends,
+            challenges — was explained nowhere. Sits directly under How to play
+            because that is where somebody looking for it will look.
+          -->
+          <button id="setting-guide" class="setting" type="button">
+            <span class="setting-name">What everything does</span>
+            <span class="setting-value">Read</span>
+          </button>
+          <!-- OFF by default, and the permission is asked for at the moment
+               this is switched on. See `reminders.ts` — a notification prompt
+               before the player has seen a board is the one most likely to be
+               denied and the hardest to ask a second time. -->
+          <!-- ON by default (Jeff, 2026-08-05). The OS permission is a separate
+               question and is asked once, after the first finished level — see
+               `askForRemindersIfDue`. Android gives an app one prompt in
+               practice, so it is not spent on the launch screen. -->
+          <button id="setting-reminders" class="setting" type="button" aria-pressed="true">
+            <span class="setting-name">Reminders</span>
+            <span id="setting-reminders-value" class="setting-value">On</span>
+          </button>
+          <button id="setting-ads" class="setting" type="button" aria-pressed="false">
+            <span class="setting-name">Remove ads</span>
+            <span id="setting-ads-value" class="setting-value">Not owned</span>
+          </button>
+          <!-- Play asks whether players can request deletion, and until this
+               existed the only honest answer was no. Lives in Settings rather
+               than the friends section because it deletes the friends section. -->
+          <!-- THE "UPDATE READY / RESTART" ROW IS GONE (2026-08-19). It was
+               the other half of a FLEXIBLE update: Play downloaded in the
+               background and this row asked for the restart. Updates are
+               immediate now, so nothing is ever staged for a player to
+               complete — the update happens at launch, on a panel with no way
+               past it, or it does not happen at all. A settings row that can
+               never light up is worse than no row. See `update.ts`. -->
+          <!-- REQUIRED, not decorative. The policy is what Play's Data Safety
+               declaration points at, and a game that writes a name and an
+               anonymous id to a server has to let a player read it from
+               inside the app rather than from a store listing. -->
+          <button id="setting-privacy" class="setting" type="button">
+            <span class="setting-name">Privacy policy</span>
+            <span class="setting-value">Read</span>
+          </button>
+          <!-- Consent has to be WITHDRAWABLE. Hidden where there is nothing to
+               withdraw — the form only exists for players the rules apply to. -->
+          <button id="setting-consent" class="setting" type="button" hidden>
+            <span class="setting-name">Ad privacy choices</span>
+            <span class="setting-value">Change</span>
+          </button>
+          <!-- Everything unlocked, for looking at the game rather than playing
+               it. Revealed by seven taps on the title — see `devmode.ts` for
+               why it is a gesture and not a build flag. -->
+          <button id="setting-dev" class="setting setting-dev" type="button" hidden>
+            <span class="setting-name">Developer mode</span>
+            <span id="setting-dev-value" class="setting-value">Off</span>
+          </button>
+          <!-- Only while developer mode is ON. Jumping to level 900 changes
+               what a tester SEES rather than what they own, so it is not part
+               of the unlock — it appears once the mode has deliberately been
+               turned on. -->
+          <div id="setting-jump" class="setting setting-jump" hidden>
+            <span class="setting-name">Jump to level</span>
+            <input
+              id="setting-jump-input"
+              class="jump-input"
+              type="number"
+              min="1"
+              max="9999"
+              inputmode="numeric"
+              placeholder="900"
+              aria-label="Level number"
+            />
+            <button id="setting-jump-go" class="jump-go" type="button">Go</button>
+          </div>
+          <!-- DEV-ONLY, and it is a reporting tool rather than a privilege:
+               it shows what the error trap in the head has collected and hands
+               it to the share sheet. It sits with the dev rows because that is
+               where a tester is already being walked to over a message, not
+               because the contents are sensitive. -->
+          <button id="setting-diag" class="setting setting-diag" type="button" hidden>
+            <span class="setting-name">Diagnostics</span>
+            <span id="setting-diag-value" class="setting-value">No errors</span>
+          </button>
+          <button id="setting-erase" class="setting setting-danger" type="button">
+            <span class="setting-name">Delete my online data</span>
+            <span id="setting-erase-value" class="setting-value">Friends &amp; name</span>
+          </button>
+        </div>
+
+        <!--
+          THE TABS.
+
+          The home screen was ONE SCROLL carrying the hero, the Daily, four
+          stats, the rule horizon, the badge shelf, the level list and the whole
+          friends section. Jeff asked directly whether it was too crowded; it
+          measured at 2.4 screens tall on a 412x892 phone, so most of what it
+          offered was below the fold and therefore invisible. Every competitor he
+          sent has a bottom bar instead, and they are right: five destinations
+          you can see beats eight sections you have to scroll for.
+
+          Each pane is the SAME markup as before, moved. Nothing was rewritten to
+          fit — the renderers all still write into the same ids, which is why
+          this could be done without touching `home.ts`'s drawing at all.
+        -->
+        <div class="tabpane" data-tab="play">
+
+        <!-- The hero: the level you are about to play, drawn. A menu whose
+             biggest element is a button tells you nothing about the game. -->
+        <button id="hero" class="hero" type="button">
+          <div id="hero-board" class="hero-board"></div>
+          <div class="hero-text">
+            <span class="hero-top">
+              <span id="hero-kicker" class="hero-kicker">Level 1</span>
+              <!-- What it will cost you, before you open it. A rule name says
+                   what is IN the level; this says how hard it is. -->
+              <span id="hero-band" class="band"></span>
+            </span>
+            <span id="hero-rules" class="hero-rules"></span>
+            <span id="hero-meta" class="hero-meta"></span>
+          </div>
+          <span id="hero-cta" class="hero-cta">Play</span>
+        </button>
+
+        </div><!-- /play -->
+
+        <div class="tabpane" data-tab="daily" hidden>
+        <!-- The Daily. One board, the same one for everybody — which is the only
+             thing that makes a shared result mean anything. -->
+        <!--
+          A HERO, like the Play tab's.
+
+          Jeff: "I would like it to be a hero tile like the main play." He is
+          right, and the old bar was the weaker thing twice over: the Daily is
+          the headline of its own tab and it was a strip of text, while the
+          board it opens — the one everybody in the world is holding today — was
+          invisible until you committed to it. Same markup as `#hero`, same
+          picture treatment, same explicit CTA, so the two read as the same kind
+          of promise.
+        -->
+        <button id="daily" class="daily hero" type="button">
+          <div id="daily-board" class="hero-board"></div>
+          <div class="hero-text">
+            <span class="hero-top">
+              <span id="daily-name" class="hero-kicker">Daily</span>
+              <span id="daily-band" class="band"></span>
+            </span>
+            <span id="daily-state" class="hero-rules"></span>
+            <span id="daily-meta" class="hero-meta"></span>
+            <span class="daily-right">
+              <span id="daily-streak" class="daily-streak"></span>
+              <!-- The appointment. See `msUntilNextDaily`. -->
+              <span id="daily-clock" class="daily-clock"></span>
+            </span>
+          </div>
+          <span id="daily-cta" class="hero-cta">Play</span>
+        </button>
+        <!-- The last three weeks of Dailies. A streak says what is true right
+             now; the row says what your month looked like, and a row with two
+             gaps in it is the thing that makes tomorrow's worth opening. -->
+        <div id="daily-history" class="daily-history" hidden>
+          <div id="daily-dots" class="daily-dots"></div>
+          <p id="daily-record" class="daily-record"></p>
+        </div>
+
+        <!--
+          TODAY'S BOARD, EVERYBODY'S TIMES.
+
+          Jeff: "On the Daily, I want to see my friends times for today's
+          board." This is where the comparison belongs and it was on the wrong
+          tab — the Daily is the only board in the game everybody holds at
+          once, so a friend's time is only meaningful next to the card for the
+          board it was set on. The Friends tab is now the weekly star race,
+          which is a different question.
+        -->
+        <div id="daily-friends" class="daily-friends" hidden>
+          <div class="home-section-head">
+            <h2 class="home-heading">Today&rsquo;s times</h2>
+          </div>
+          <div id="daily-friends-list" class="friends-list"></div>
+        </div>
+
+        <!--
+          THE SEASON. A fortnight-long track with a clock on it — see
+          `season.ts` for why an endless game needs a third thing that is
+          neither the campaign nor the collection.
+        -->
+        <div id="season" class="season">
+          <div class="season-head">
+            <div class="season-title">
+              <span id="season-name" class="season-name"></span>
+              <span id="season-blurb" class="season-blurb"></span>
+            </div>
+            <span id="season-left" class="season-left"></span>
+          </div>
+          <div class="season-barwrap">
+            <div class="bar"><div id="season-bar" class="bar-fill"></div></div>
+            <span id="season-points" class="season-points"></span>
+          </div>
+          <div id="season-track" class="season-track"></div>
+        </div>
+
+        </div><!-- /daily -->
+
+        <div class="tabpane" data-tab="play" hidden>
+        <div class="home-stats">
+          <div class="home-stat"><span class="home-stat-value" id="home-reached">1</span><span class="home-stat-label">furthest</span></div>
+          <div class="home-stat"><span class="home-stat-value" id="home-solved">0</span><span class="home-stat-label">solved</span></div>
+          <div class="home-stat"><span class="home-stat-value" id="home-stars">0</span><span class="home-stat-label">stars</span></div>
+          <!-- The streak is the retention hook — there are no lives and nothing
+               meters retries, so this is the one number that decays if you stop
+               playing. It was drawn only on the Daily card, which is the one
+               place you already know your streak. -->
+          <div class="home-stat"><span class="home-stat-value home-stat-streak" id="home-streak">0</span><span class="home-stat-label">day streak</span></div>
+        </div>
+
+        <div class="home-section-head">
+          <h2 class="home-heading">Levels</h2>
+          <button id="levels-more" class="linkish" type="button">Show all</button>
+        </div>
+        <div id="home-levels" class="home-levels"></div>
+
+
+        </div><!-- /play -->
+
+        <!--
+          THE COLLECTION, inline.
+
+          It used to be a full-screen overlay opened from the shelf. Given a tab
+          of its own, an overlay would mean tapping a destination to be shown a
+          one-row teaser and then tapping again — so the panel's contents moved
+          here and the overlay is gone. Same markup, same renderer, same ids.
+        -->
+        <div class="tabpane" data-tab="badges" hidden>
+          <div class="home-section-head">
+            <h2 class="home-heading">Collection</h2>
+          </div>
+          <p id="badges-summary" class="badges-summary"></p>
+          <div id="badges-grid" class="badges-grid"></div>
+          <div id="badge-detail" class="badge-detail" hidden></div>
+        </div><!-- /badges -->
+
+        <div class="tabpane" data-tab="friends" hidden>
+        <!-- Friends. Self-reported: there is no server, so this is a comparison
+             board and never a ranking (invariant 10).
+
+             PEOPLE FIRST. This tab used to open on the challenge builder — a
+             385px form above the humans, on a tab called Friends — and the
+             "This week" heading sat at the top labelling it, four hundred
+             pixels from the race it actually named. The builder now lives
+             behind a friend's own page, where "Challenge Priya" is a sentence
+             rather than a configuration screen. -->
+        <div class="home-section-head">
+          <h2 class="home-heading">Friends</h2>
+          <button id="friends-share-week" class="linkish" type="button" hidden>Share</button>
+          <button id="friends-invite" class="linkish" type="button">Invite a friend</button>
+        </div>
+
+        <!--
+          THE WEEKLY STAR RACE.
+
+          It used to compare furthest level, which is the worst number to put
+          people next to each other on: it never goes down, it is decided mostly
+          by who installed first, and nothing you do tonight moves you past
+          anybody. Jeff: "not about what level anyone is on, but how many stars
+          have been gathered this week." The board resets Sunday 00:00 UTC, so
+          the person who joined yesterday and the person who has played for a
+          year both start the week on zero. See `weekly.ts`.
+        -->
+        <div class="race">
+          <div class="race-head">
+            <span id="race-mine" class="race-mine"></span>
+            <span id="race-left" class="race-left"></span>
+          </div>
+          <div id="race-rows" class="race-rows"></div>
+          <p id="race-note" class="race-note"></p>
+        </div>
+        <!--
+          BOARDS SOMEBODY SENT YOU, and times somebody set on yours. The
+          competition, in the one place both halves of it belong.
+        -->
+        <div id="boards" class="boards" hidden>
+          <div class="home-section-head">
+            <h2 class="home-heading">Boards</h2>
+          </div>
+          <div id="boards-list" class="boards-list"></div>
+        </div>
+
+        <!--
+          WHO YOU ARE, and the four characters that make you not the other
+          person with your name. Jeff: "I also think we need to have the concept
+          of accounts. So you can have two Jeff's or whatever."
+        -->
+        <label class="friends-name-row" for="friends-name">
+          <span class="friends-name-label">You appear as</span>
+          <input
+            id="friends-name"
+            class="friends-name"
+            type="text"
+            maxlength="24"
+            autocomplete="nickname"
+            placeholder="Your name"
+          />
+          <span id="friends-tag" class="friends-tag"></span>
+        </label>
+        <p id="friends-note" class="friends-note"></p>
+
+        <!-- The builder still exists for a board with no addressee. It is a
+             link somebody routes themselves, which is the only way to reach
+             a person the game does not talk to yet. -->
+        <button id="challenge-open-any" class="friends-build" type="button">
+          Build a board for anyone
+        </button>
+        </div><!-- /friends -->
+
+        <!--
+          REWARDS, not a shop.
+
+          It was called Shop for one release and Jeff called it: "change the
+          name, it is not a shop, but a rewards". He is right and the name was
+          doing real harm — a tab labelled Shop promises things you buy, and
+          invariant 8 means nothing here will EVER cost money, meter a retry or
+          gate a level. Everything on this tab is something the game paid you
+          for playing, so the tab says so.
+        -->
+        <div class="tabpane" data-tab="shop" hidden>
+          <div class="home-section-head">
+            <h2 class="home-heading">Store</h2>
+            <span id="shop-helps" class="badges-count"></span>
+          </div>
+          <p class="shop-note">
+            Coins buy blocks, backgrounds and half the board frames. The other
+            half are Diamond prizes and are never for sale, at any price. Stars
+            are your score and are never spent.
+          </p>
+
+          <!--
+            GIFT MODE. The Store tab is the whole shop already, so buying FOR
+            somebody reuses it rather than growing a second picker: this banner
+            appears, every price stays where it is, and a purchase is addressed
+            instead of kept. Hidden unless a friend row asked for it.
+          -->
+          <div id="gift-bar" class="gift-bar" hidden>
+            <p id="gift-who" class="gift-who"></p>
+            <button id="gift-cancel" class="linkish" type="button">Keep it myself</button>
+          </div>
+
+          <!--
+            THIS FORTNIGHT ONLY. One cosmetic per named season, on the shelf
+            while that season runs and gone when it ends — the sink a fixed
+            catalogue cannot be. Bought is bought: it stays owned and wearable
+            for ever, and only the chance to buy it ends.
+          -->
+          <div id="season-shop" class="season-shop" hidden>
+            <div class="rewards-head-row">
+              <h3 class="rewards-head">This season only</h3>
+              <span id="season-shop-left" class="season-shop-left"></span>
+            </div>
+            <div id="season-shop-row" class="badge-sets"></div>
+            <p id="season-shop-note" class="shop-note"></p>
+          </div>
+
+          <h3 class="rewards-head">Blocks</h3>
+          <div id="shop-sets" class="badge-sets"></div>
+
+          <h3 class="rewards-head">Backgrounds</h3>
+          <div id="shop-scenes" class="badge-sets"></div>
+
+          <!-- The shelf stars cannot reach. Every frame is a Diamond prize, and
+               a section with no prices on any row says something true about how
+               this game works. -->
+          <h3 class="rewards-head">Board frames <span class="rewards-tag">Diamond only</span></h3>
+          <div id="shop-frames" class="badge-sets"></div>
+
+          <!-- The one place real money enters the game. Drawn even before
+               billing exists, because a store that says what is coming is a
+               roadmap and one full of dead buttons is a bad review. -->
+          <h3 class="rewards-head">Coin packs</h3>
+          <div id="shop-packs" class="packs"></div>
+          <!-- Purchase messages go HERE, not into the balance. Overwriting the
+               balance with an error means the player loses sight of what they
+               have at the exact moment they are wondering about it. -->
+          <p id="shop-packs-note" class="shop-note" hidden></p>
+
+          <div id="shop-locked" class="shop-locked"></div>
+        </div><!-- /shop -->
+      </section>
+
+      <!--
+        THE BOTTOM BAR.
+
+        Fixed, five destinations, always visible on home and never on a board —
+        a nav bar under a puzzle is a row of things to hit by accident with the
+        hand that is placing pieces.
+      -->
+      <!--
+        THE BOTTOM BAR.
+
+        Fixed, five destinations, always visible on home and never on a board —
+        a nav bar under a puzzle is a row of things to hit by accident with the
+        hand that is placing pieces.
+
+        FILLED SHAPES, ONE HUE EACH. The first version was hairline strokes in
+        one grey, which is what a productivity app's bar looks like; Jeff asked
+        for colour, and he is right that a puzzle game whose whole appeal is six
+        bright blocks should not navigate itself in grey. Each tab takes one of
+        the six piece colours (`--c1..--c6`), so the bar is tinted from the same
+        palette the boards are and re-tints itself when a tile set changes.
+
+        The icons are drawn from BLOCKS wherever the meaning allows: the Play
+        grid is four tiles, the Badges medal is a rounded tile with a ribbon,
+        the Store chest is a tile with a lid. That is the game's own vocabulary
+        rather than a stock icon set.
+      -->
+      <nav id="tabbar" class="tabbar" hidden>
+        <button class="tab" type="button" data-go="play" style="--tab-c: var(--c1)" aria-current="page">
+          <span class="tab-ico">
+            <svg class="tab-i" viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="3" y="3" width="8" height="8" rx="2.4"/>
+              <rect x="13" y="3" width="8" height="8" rx="2.4"/>
+              <rect x="3" y="13" width="8" height="8" rx="2.4"/>
+              <rect x="13" y="13" width="8" height="8" rx="2.4"/>
+            </svg>
+          </span>
+          <span class="tab-t">Play</span>
+        </button>
+        <button class="tab" type="button" data-go="daily" style="--tab-c: var(--c4)">
+          <span class="tab-ico">
+            <svg class="tab-i" viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="2.6" y="5" width="18.8" height="16" rx="3.4"/>
+              <rect x="2.6" y="5" width="18.8" height="5.2" rx="2.6" class="tab-i-dim"/>
+              <rect x="6.6" y="2.2" width="2.8" height="5.4" rx="1.4"/>
+              <rect x="14.6" y="2.2" width="2.8" height="5.4" rx="1.4"/>
+              <!-- Days, not one lone square: three marks read as a calendar,
+                   one reads as a smudge. -->
+              <rect x="6" y="12.6" width="3.4" height="3.4" rx="1" class="tab-i-hole"/>
+              <rect x="10.3" y="12.6" width="3.4" height="3.4" rx="1" class="tab-i-hole"/>
+              <rect x="14.6" y="12.6" width="3.4" height="3.4" rx="1" class="tab-i-hole"/>
+              <rect x="6" y="17" width="3.4" height="3.4" rx="1" class="tab-i-hole"/>
+            </svg>
+          </span>
+          <span class="tab-t">Daily</span>
+          <span id="tab-daily-dot" class="tab-dot" hidden></span>
+        </button>
+        <button class="tab" type="button" data-go="badges" style="--tab-c: var(--c2)">
+          <span class="tab-ico">
+            <svg class="tab-i" viewBox="0 0 24 24" aria-hidden="true">
+              <!-- A MEDAL, not a pin. Wide ribbon tails behind a solid disc:
+                   the first version had narrow tails and a ring, which reads as
+                   a map marker at 22px. -->
+              <path d="M7.6 12.4L4.4 21.6l4.6-2.2 1.2 2.6 3-9z" class="tab-i-dim"/>
+              <path d="M16.4 12.4l3.2 9.2-4.6-2.2-1.2 2.6-3-9z" class="tab-i-dim"/>
+              <circle cx="12" cy="8" r="6.3"/>
+              <path d="M12 4.3l1.16 2.35 2.59.38-1.87 1.83.44 2.58L12 10.2l-2.32 1.22.44-2.58L8.25 7.03l2.59-.38z" class="tab-i-hole"/>
+            </svg>
+          </span>
+          <span class="tab-t">Badges</span>
+          <span id="tab-badges-dot" class="tab-dot" hidden></span>
+        </button>
+        <button class="tab" type="button" data-go="friends" style="--tab-c: var(--c3)">
+          <span class="tab-ico">
+            <svg class="tab-i" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="16.6" cy="8.4" r="3.1" class="tab-i-dim"/>
+              <path d="M12.6 20.2c0-3.3 1.9-5.6 4.4-5.6s4.4 2.3 4.4 5.6z" class="tab-i-dim"/>
+              <circle cx="9" cy="7.8" r="4"/>
+              <path d="M1.8 20.4c0-4 3-6.8 7.2-6.8s7.2 2.8 7.2 6.8z"/>
+            </svg>
+          </span>
+          <span class="tab-t">Friends</span>
+        </button>
+        <button class="tab" type="button" data-go="shop" style="--tab-c: var(--c5)">
+          <span class="tab-ico">
+            <svg class="tab-i" viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="2.6" y="9.4" width="18.8" height="11.4" rx="2.8"/>
+              <rect x="2.6" y="5.4" width="18.8" height="5.4" rx="2.2" class="tab-i-dim"/>
+              <rect x="10.4" y="5.4" width="3.2" height="15.4" class="tab-i-hole"/>
+            </svg>
+          </span>
+          <span class="tab-t">Store</span>
+          <span id="tab-shop-dot" class="tab-dot" hidden></span>
+        </button>
+      </nav>
+
+      <section id="play" class="play">
+        <header class="topbar">
+        <!-- HOME LIVES UP HERE NOW. It was a full-width button under the
+             controls, which cost 53px of a 640px phone and pushed itself off
+             the bottom of the screen on the boards with the most pieces — the
+             exact thing users reported. Nothing about going home wants to be
+             the biggest control on the screen. -->
+        <button id="to-home" class="icon-btn" type="button" aria-label="Home"><svg class="btn-i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11 12 4l8 7"/><path d="M6.5 9.6V19h11V9.6"/></svg></button>
+        <!-- HELP SITS BESIDE HOME. It floated for one release and Jeff put it
+             straight: "the help is not reachable, it should be up with the home
+             button icon, I liked that." A floating button over a board you are
+             dragging pieces around is one more thing between a thumb and a
+             cell — and the top bar is where the controls that are not part of
+             solving now live. -->
+        <button id="help" class="icon-btn help-btn" type="button" aria-label="Help">
+          <svg class="btn-i" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 1 3.5 10.9c-.5.4-.8 1-.8 1.6v.5h-5.4v-.5c0-.6-.3-1.2-.8-1.6A6 6 0 0 1 12 3Z"/></svg>
+          <span id="help-count" class="help-count">5</span>
+        </button>
+        <!--
+          THE ROW UNDER THE BOARD IS GONE.
+
+          Jeff: "the turn button and more button is better, but still doesn't
+          quite feel right, can you try some other options?" — and, choosing
+          between them, double-tap. Turning is now a double-tap on the piece you
+          are holding, which is where your thumb already is, and the row it used
+          to sit in gave 56px back to the board.
+
+          Turn stays HERE as well, in the menu. A gesture with no visible
+          control is undiscoverable and unreachable for anybody who cannot
+          double-tap, and this is the one place it costs nothing to keep it.
+        -->
+        <!--
+          TURN IS A BUTTON AGAIN, and its real job is being SEEN.
+
+          Jeff: "there isn't an immediately obvious way to know that it is a
+          rotate level. Maybe we do need the button back." Tapping the piece you
+          hold still turns it — that gesture is quicker once you know it — but
+          a gesture cannot announce itself, and a level whose whole difficulty is
+          orientation has to say so. The button appears only on levels that
+          rotate, so its presence IS the announcement.
+
+          In the top bar rather than a row under the board: the row cost 56px of
+          board and this costs none.
+        -->
+        <button id="rotate" class="icon-btn rotate-btn" type="button" aria-label="Turn every piece" hidden><svg class="btn-i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 12a7.5 7.5 0 1 1 2.4 5.5"/><polyline points="4 7.5 4.5 12.5 9.5 12"/></svg></button>
+        <!--
+          UNDO AND RESET ARE BUTTONS AGAIN, out of the More menu they spent two
+          releases inside.
+
+          They were put there when "rare enough that a permanent button each is
+          46px of a phone spent on things most boards never need" was true. It is
+          not true on a level in the three thousands: undoing is most of how a
+          hard board gets solved, and a control you have to open a menu to reach
+          is a control you stop using. Jeff: "the undo and reset buttons can stay
+          on the page as well."
+
+          The room came from the rules. See `#rules` below — one pill instead of
+          one chip per rule is a bounded width where the old row was not, and
+          that is what pays for these two.
+        -->
+        <button id="undo" class="icon-btn" type="button" aria-label="Undo"><svg class="btn-i" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7H15a5 5 0 0 1 0 10H8"/><polyline points="12 4 8.5 7 12 10"/></svg></button>
+        <button id="reset" class="icon-btn" type="button" aria-label="Reset the board"><svg class="btn-i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><polyline points="20 4 20 9 15 9"/></svg></button>
+        <div id="title" class="title"></div>
+        <div id="progress" class="progress"></div>
+        <!--
+          ONE PILL FOR THE RULES, however many there are.
+
+          There used to be a chip per rule, and the bar's width therefore
+          depended on the level. `.progress` never gives ground (`flex: 0 0
+          auto`), so the chip row absorbed every shortfall and clipped — on a
+          phone with the system font turned up, the level number ate the rules.
+          Jeff, with three screenshots: "the mechanic pills are sometimes covered
+          by the level number."
+
+          A single control cannot do that. It names the rule when there is one
+          and counts them when there are more, and opens a sheet listing every
+          rule in play with what it does — which is more than the chips ever
+          said, since a chip was only ever a name.
+        -->
+        <div class="rules-wrap">
+          <button id="rules" class="chip rules-pill" type="button" aria-expanded="false" hidden></button>
+          <div id="rules-sheet" class="rules-sheet" hidden></div>
+        </div>
+        <!-- Stars measure TIME, so a board you have to walk away from is a
+             board you have to give up on. Sits in the top bar rather than the
+             control row: it is not part of solving, and the row you use while
+             thinking is the worst place for a control that hides the board. -->
+        <button id="pause" class="pause-btn" type="button" aria-label="Pause the clock"><svg class="btn-i" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="6" width="3" height="12" rx="1"/><rect x="14" y="6" width="3" height="12" rx="1"/></svg></button>
+      </header>
+
+      <!-- Tutorial coaching. Sits above the board, on the real play screen —
+           the tutorial IS the game, not a slideshow about it. -->
+      <div id="tut" class="tut" hidden>
+        <p id="tut-step" class="tut-step"></p>
+        <h2 id="tut-title" class="tut-title"></h2>
+        <p id="tut-body" class="tut-body"></p>
+        <button id="tut-skip" class="tut-skip" type="button">Skip the tutorial</button>
+      </div>
+      <div id="grid" class="grid-host"></div>
+
+      <!--
+        THE PIECES SIT DIRECTLY UNDER THE BOARD and the numbers below them.
+        Jeff: "can you also switch the timers and the blocks on the screen."
+
+        Done with flex ORDER rather than by moving the markup: `#hud` holds the
+        stats AND the banner, and every test and half a dozen harnesses address
+        the numbers as `#hud .stat[data-stat=...]`. Splitting the element to
+        reorder two boxes would have rewritten all of them to say the same
+        thing in a longer way. See `.play > #picker` in the stylesheet.
+      -->
+      <div id="hud"></div>
+
+      <div id="picker" class="picker"></div>
+
+      <button id="next-level" class="next-level" type="button" hidden>Next level</button>
+      <!--
+        THE NEXT GAME OF A BEST-OF-THREE.
+
+        Above the share row and below Next level, because it is the thing a
+        person mid-series actually wants and the share is the thing they want
+        after the run is over. Empty and hidden on every other board.
+      -->
+      <div id="series-row" class="series-row" hidden>
+        <span id="series-standing" class="series-standing"></span>
+        <button id="series-go" class="series-go" type="button"></button>
+      </div>
+      <div id="share-row" class="share-row" hidden>
+        <button id="share-text" class="share-btn" type="button">Share result</button>
+        <button id="share-image" class="share-btn" type="button">Save image</button>
+        <!--
+          SEND THE BOARD YOU JUST PLAYED. The builder asks for rules, a size and
+          a meanness and charges for a board nobody has seen; this is the same
+          thing with every decision already made by having played it, and your
+          time is on it before it leaves. See `sendPlayedBoard`.
+        -->
+        <button id="share-board" class="share-btn" type="button">Send this board</button>
+      </div>
+      <p id="share-note" class="share-note" hidden></p>
+      <p id="help-note" class="help-note" hidden></p>
+      <button id="skip-level" class="skip-level" type="button" hidden>Stuck? Skip for an ad</button>
+      </section>
+
+
+      <!-- Shown once, when a level introduces a new mechanic. A rule the player
+           has to reverse-engineer from refusals is not a mechanic, it is a bug
+           with a message. -->
+      <!--
+        THE DAILY BRIEFING.
+
+        Jeff: "you are on level 25, just starting out, you go to play the daily
+        level and it might have 3 mechanics you have never seen." The Daily is
+        built somewhere between level 300 and 1200, so its rules have nothing to
+        do with how far the player has got — and `maybeIntroduce` only fires on
+        the campaign level that INTRODUCES a rule, so a Daily introduced
+        nothing. The only affordance was the chips on the board, which you have
+        to already know to tap.
+
+        THE CLOCK IS NOT RUNNING while this is up. `startedAt` is set by the
+        first PLACEMENT, not by opening the board, so a briefing on a ranked run
+        costs nothing — and it is the natural "ready?" beat before a timed
+        board rather than an interruption to one.
+      -->
+      <!--
+        THE GUIDE. One topic per card, opened one at a time — the same shape as
+        a rule card and the badge detail, because that is the only explanation
+        format this game has ever used successfully. Every number in it is read
+        from the module that owns it; see `guide.ts`.
+      -->
+
+      <!--
+        ONE PERSON.
+
+        The Friends tab was a league table and a form: everything on it was an
+        aggregate, so there was nowhere a rivalry could accumulate and nowhere
+        obvious to put "challenge her". This is that place. It is reached by
+        tapping a row, it always shows the tag (this is where you come to check
+        you have the right Jeff), and it carries the two actions that are aimed
+        at a person rather than at a number.
+      -->
+      <div id="mate" class="mate" hidden>
+        <div class="mate-body">
+          <div class="mate-head">
+            <button id="mate-close" class="mate-back" type="button" aria-label="Back">&lsaquo;</button>
+            <div class="mate-who">
+              <h2 id="mate-name" class="mate-name"></h2>
+              <p id="mate-sub" class="mate-sub"></p>
+            </div>
+          </div>
+
+          <div id="mate-stats" class="mate-stats"></div>
+
+          <!-- TODAY'S DAILY, side by side. The one board in the game everybody
+               provably played the same version of. -->
+          <div id="mate-daily" class="mate-daily" hidden>
+            <h3 class="mate-h">Today&rsquo;s Daily</h3>
+            <div id="mate-daily-rows" class="mate-daily-rows"></div>
+            <p id="mate-daily-note" class="mate-note"></p>
+          </div>
+
+          <!--
+            THE BOARDS YOU HAVE TRADED WITH THIS PERSON.
+
+            Jeff: "playing the sent board is still only on the play page, and
+            the campaign takes over. I want it to be played from the Friend
+            page, and specifically on the page of the friend it was shared
+            with."
+
+            A board is a thing between two people, so it belongs on the page
+            that is about one of them. The tab-level list stays for boards that
+            arrived by link from somebody who is not on the roster.
+          -->
+          <div id="mate-boards" class="mate-boards" hidden>
+            <h3 class="mate-h">Boards between you</h3>
+            <div id="mate-boards-list" class="mate-boards-list"></div>
+          </div>
+
+          <div class="mate-record">
+            <h3 class="mate-h">Head to head</h3>
+            <p id="mate-record-line" class="mate-record-line"></p>
+            <div id="mate-record-bars" class="mate-bars"></div>
+            <p id="mate-record-note" class="mate-note"></p>
+          </div>
+
+          <div class="mate-actions">
+            <button id="mate-challenge" class="mate-do" type="button">Challenge</button>
+            <button id="mate-gift" class="mate-do ghost" type="button">Gift</button>
+          </div>
+          <button id="mate-remove" class="mate-remove" type="button">Remove friend</button>
+        </div>
+      </div>
+
+      <!-- THE BUILDER, now a sheet rather than the top of the Friends tab. -->
+      <div id="challenge" class="challenge" hidden>
+        <div class="challenge-body">
+          <div class="challenge-sheet-head">
+            <h2 id="challenge-title" class="challenge-title">Build a board</h2>
+            <button id="challenge-close" class="mate-back" type="button" aria-label="Close">&times;</button>
+          </div>
+          <div class="challenge-head">
+            <span id="challenge-price" class="season-shop-left"></span>
+          </div>
+          <p class="shop-note">
+            Pick the rules and how hard it is, then send the board to a friend.
+            They play it free. You get their time back.
+          </p>
+
+          <!--
+            WHO IT GOES TO. A board was always a link you had to route yourself,
+            even to somebody the game already talks to — while a GIFT has had a
+            button per friend row from the day it shipped.
+          -->
+          <div id="challenge-to-row" class="challenge-dial">
+            <span class="challenge-dial-label">Send to</span>
+            <div id="challenge-to" class="challenge-choices"></div>
+          </div>
+
+          <div class="challenge-dial">
+            <span class="challenge-dial-label">Rules</span>
+            <div id="challenge-rules" class="challenge-rules"></div>
+          </div>
+
+          <div class="challenge-dials">
+            <div class="challenge-dial">
+              <span class="challenge-dial-label">Size</span>
+              <div id="challenge-size" class="challenge-choices"></div>
+            </div>
+            <div class="challenge-dial">
+              <span class="challenge-dial-label">How mean</span>
+              <div id="challenge-mean" class="challenge-choices"></div>
+            </div>
+            <div class="challenge-dial">
+              <span class="challenge-dial-label">How many</span>
+              <div id="challenge-games" class="challenge-choices"></div>
+            </div>
+          </div>
+
+          <!--
+            THE ACTION STAYS PUT. With every rule met the chip list is 20 items
+            and the sheet grew past the screen — measured on a 360x640, the
+            content was 681px in a 563px box and the Send button sat 65px below
+            the visible bottom. Jeff: "the build a board screen doesn't fit on
+            the page any longer, you have to scroll around." Scrolling to find
+            the only button that does anything is not a form, it is a hunt.
+          -->
+          <div class="challenge-foot">
+            <button id="challenge-build" class="challenge-build" type="button">
+              Build and send
+            </button>
+            <p id="challenge-note" class="friends-note"></p>
+          </div>
+        </div>
+      </div>
+
+
+      <div id="guide" class="guide" hidden>
+        <div class="guide-body">
+          <div class="guide-head">
+            <h2 class="guide-title">What everything does</h2>
+            <button id="guide-close" class="guide-close" type="button" aria-label="Close">&times;</button>
+          </div>
+          <p class="guide-lead">
+            The whole game, in the order you meet it. Tap anything to open it.
+          </p>
+          <div id="guide-list" class="guide-list"></div>
+        </div>
+      </div>
+
+      <!-- THE STALE GATE. No close button, no backdrop dismiss, and above
+           every other layer on purpose: it is the one panel in the game that is
+           not an offer. `update.ts` explains why this stopped being a flexible
+           background download — the short version is that a tester on a build
+           from two hours ago reports bugs against code that no longer exists,
+           and trades boards through a shared database with people who are not.
+
+           It can only ever appear when Play has SAID there is a newer build.
+           A device that cannot ask — offline, sideloaded, an emulator, the web
+           — never reaches this, because an app that bricks itself offline is a
+           worse failure than the one this prevents. -->
+      <div id="stale" class="brief stale" hidden>
+        <div class="brief-body">
+          <p class="brief-kicker">Update</p>
+          <h2 class="brief-title">There is a newer Thunk</h2>
+          <p id="stale-lead" class="brief-lead"></p>
+          <button id="stale-go" class="brief-go" type="button">Update now</button>
+        </div>
+      </div>
+
+      <div id="brief" class="brief" hidden>
+        <div class="brief-body">
+          <p class="brief-kicker">Today&rsquo;s board</p>
+          <h2 id="brief-title" class="brief-title"></h2>
+          <p id="brief-lead" class="brief-lead"></p>
+          <div id="brief-rules" class="brief-rules"></div>
+          <button id="brief-go" class="brief-go" type="button">Play</button>
+        </div>
+      </div>
+
+      <div id="intro" class="intro" hidden>
+        <div class="intro-body">
+          <p id="intro-kicker" class="intro-kicker">New rule</p>
+          <h2 id="intro-name" class="intro-name"></h2>
+          <div id="intro-reel" class="intro-reel"></div>
+          <p id="intro-blurb" class="intro-blurb"></p>
+          <button id="intro-close" type="button">Got it</button>
+        </div>
+      </div>
+
+      <!-- The celebration. A win used to be a one-line banner, which is a
+           receipt, not a moment. -->
+      <div id="cheer" class="cheer" hidden>
+        <canvas id="cheer-confetti" class="cheer-confetti" aria-hidden="true"></canvas>
+        <div class="cheer-body">
+          <!--
+            THE MASCOT, on the one screen that is pure celebration.
+
+            Every top puzzle game Jeff compared us against is cartoony, and the
+            thing Thunk had instead was a well-set paragraph. A character made
+            of the game's own blocks is the cheapest way to have a face — and
+            the win screen is where it belongs, because that is the one moment
+            the game is allowed to be silly.
+
+            `loading="eager"`, `decoding="async"`, and a fixed height in CSS: it
+            appears mid-celebration, so a late-loading image that reflows the
+            panel under the player's thumb is the failure to avoid.
+          -->
+          <img
+            id="cheer-mascot"
+            class="cheer-mascot"
+            src="./art/mascot-cheer.png"
+            alt=""
+            width="384"
+            height="384"
+            decoding="async"
+          />
+          <p id="cheer-word" class="cheer-word">You did it!</p>
+          <p id="cheer-stars" class="cheer-stars"></p>
+          <p id="cheer-line" class="cheer-line"></p>
+          <!-- Daily only. The streak is the whole retention mechanic and the
+               moment it grows is the moment it is worth saying so. -->
+          <p id="cheer-streak" class="cheer-streak" hidden></p>
+          <!-- A badge is announced where it was earned. Telling somebody two
+               screens later that they unlocked something is a notification, and
+               a notification about your own game is not a reward. -->
+          <p id="cheer-badge" class="cheer-badge" hidden></p>
+          <div class="cheer-stats">
+            <div class="cheer-stat"><span id="cheer-time" class="cheer-stat-v"></span><span class="cheer-stat-l">time</span></div>
+            <div class="cheer-stat"><span id="cheer-boxes" class="cheer-stat-v"></span><span class="cheer-stat-l">boxes</span></div>
+            <!-- What the board paid. A currency that arrives silently is one
+                 nobody notices they have — the mistake helps made for three
+                 releases. Hidden when a replay beat nothing, because "0 coins"
+                 is a telling-off rather than a result. -->
+            <div id="cheer-coin-stat" class="cheer-stat" hidden><span id="cheer-coins" class="cheer-stat-v coin"></span><span class="cheer-stat-l">coins</span></div>
+            <div class="cheer-stat"><span id="cheer-best" class="cheer-stat-v"></span><span class="cheer-stat-l">to beat</span></div>
+          </div>
+          <button id="cheer-next" class="cheer-next" type="button">Next level</button>
+          <button id="cheer-stay" class="cheer-stay" type="button">Stay on this board</button>
+          <!--
+            HOME, FROM THE SCREEN THAT ENDS A LEVEL.
+            The two buttons above go deeper — the next board, or this one again
+            — so leaving meant dismissing the celebration and finding the Home
+            icon in the top bar, which is three actions and one of them is a
+            guess. Jeff: "Home button right after level ends."
+            Hidden in the modes that already have their own way out: the Daily
+            says "Back home" and a challenge says "Back to friends" on the
+            button above, and two Home buttons is a worse screen than none.
+          -->
+          <button id="cheer-home" class="cheer-home" type="button">Home</button>
+        </div>
+      </div>
+      <!-- The collection. Every badge, what it takes, what it leads to, and a
+           way to send one to somebody. -->
+      <!-- The first launch of the day. Counts turning up rather than winning:
+           the Daily streak is an achievement and can be lost by having a bad
+           five minutes, and this one is the number anybody can keep. -->
+      <div id="visit" class="visit" hidden>
+        <div class="visit-body">
+          <p class="visit-kicker">Welcome back</p>
+          <p id="visit-streak" class="visit-streak">Day 1</p>
+          <div id="visit-week" class="visit-week"></div>
+          <p id="visit-note" class="visit-note"></p>
+          <button id="visit-close" type="button">Play</button>
+        </div>
+      </div>
+
+      <!-- Paused. Covers the board on purpose: a stopped clock over a board you
+           can still study is a way to take the timing out of a timed game. -->
+      <div id="paused" class="paused" hidden>
+        <div class="paused-body">
+          <p class="paused-kicker">Paused</p>
+          <p id="paused-time" class="paused-time">0.0s</p>
+          <p class="paused-note">The clock is stopped, and the board is waiting.</p>
+          <button id="paused-resume" type="button">Resume</button>
+          <button id="paused-home" class="paused-home" type="button">Leave it for now</button>
+        </div>
+      </div>
+
+      <!--
+        THE END OF THE TRIAL, and the only screen the web advert exists to reach.
+
+        It is a MODAL over the board rather than a page of its own, for the same
+        reason `#paused` is: the trial never shows a home screen (see
+        `wantsLevelDirectly`), so there is no page to navigate to and building
+        one would mean a second landing screen to keep legible in five scenes.
+
+        It is also where Home goes in trial mode. A trial has nowhere else to
+        be — a Home button that unloads the board and reveals nothing was the
+        dead end `MODE_NOW` warns about for the Daily, and here the honest
+        destination for "I am done with this board" is the offer.
+
+        EVERY NUMBER ON IT IS WRITTEN BY `paintWall`, never typed here. The
+        store listing shipped "24 rules" for two releases after there were
+        twenty, and a rule count on a marketing surface is the single claim most
+        likely to be read and least likely to be re-checked.
+      -->
+      <div id="wall" class="wall" hidden>
+        <div class="wall-body">
+          <p class="wall-kicker">That was the demo</p>
+          <h2 class="wall-title">The game keeps going</h2>
+          <ul class="wall-list">
+            <li id="wall-rules"></li>
+            <li id="wall-daily"></li>
+            <li id="wall-endless"></li>
+          </ul>
+          <p class="wall-note">Free, and your progress starts fresh on the app.</p>
+          <a id="wall-get" class="wall-get" href="#" target="_blank" rel="noopener noreferrer">Get it free on Google Play</a>
+          <button id="wall-stay" class="wall-stay" type="button">Keep playing here</button>
+        </div>
+      </div>
+      <!--
+        ARE YOU SURE. Jeff: "I think we should have an are you sure before
+        making the purchase, it is too easy to just be scrolling and
+        accidentally purchase something."
+
+        The shelf is a scrolling list of tappable rows and the tap spends real
+        earned coins with no step in between. It is also where a GIFT is
+        confirmed — sending one had no confirmation at all, which is the same
+        gap seen from the other side.
+      -->
+      <!--
+        SOMETHING ARRIVED.
+
+        Jeff: "when a friend sends you a gift, or a Board, it should create a
+        notification on the phone, and an overlay on the game screen that your
+        friend sent you a thing, so you can go check it out."
+
+        Both used to write one line into a note on the Friends tab — a screen
+        you have no reason to open unless you already suspect something is
+        there. A present nobody notices is not a present.
+      -->
+      <div id="arrive" class="arrive" hidden>
+        <div class="arrive-body">
+          <p id="arrive-kicker" class="arrive-kicker">From a friend</p>
+          <p id="arrive-what" class="arrive-what"></p>
+          <button id="arrive-go" class="arrive-go" type="button">Have a look</button>
+          <button id="arrive-thanks" class="arrive-thanks" type="button" hidden>Say thanks</button>
+          <button id="arrive-close" class="arrive-close" type="button">Later</button>
+        </div>
+      </div>
+
+      <div id="confirm" class="confirm" hidden>
+        <div class="confirm-body">
+          <p id="confirm-what" class="confirm-what"></p>
+          <p id="confirm-cost" class="confirm-cost"></p>
+          <button id="confirm-yes" class="confirm-yes" type="button">Buy</button>
+          <button id="confirm-no" class="confirm-no" type="button">Cancel</button>
+        </div>
+      </div>
+
+      <div id="ad" class="ad" hidden>
+        <div class="ad-body">
+          <p class="ad-label">Ad</p>
+          <p id="ad-note" class="ad-note"></p>
+          <button id="ad-close" type="button">Continue</button>
+          <!-- A WAY OUT. A rewarded ad is an offer, and an offer you cannot
+               decline is not an offer. Jeff: "If you click on the help, but
+               need to watch an ad, you can't decide to not to watch the ad."
+               Hidden for an interstitial, which is a break in play rather than
+               a question. -->
+          <button id="ad-skip" class="ad-skip" type="button" hidden>Not now</button>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>
